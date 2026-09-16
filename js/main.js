@@ -29,7 +29,7 @@
   if (observer) $$(".reveal:not(.is-visible)").forEach(el => observer.observe(el));
 
   function lifeMarkup(item, index, archive = false) {
-    if (archive) return `<article class="archive-item ${index === 0 ? "archive-item--feature" : "archive-item--grid"} reveal">
+    if (archive) return `<article class="archive-item archive-item--feature reveal">
       <div class="archive-image-wrap">
         <a href="${item.url}" aria-label="Open ${item.title}"><img class="archive-image" src="${item.image}" width="1200" height="900" loading="lazy" alt="${item.title}"></a>
       </div>
@@ -60,8 +60,7 @@
   }
   const lifeArchive = $("[data-life-archive]");
   if (lifeArchive) {
-    const archiveItems = data.life.map((item, index) => lifeMarkup(item, index, true));
-    lifeArchive.innerHTML = archiveItems.length ? archiveItems[0] + (archiveItems.length > 1 ? `<div class="archive-grid">${archiveItems.slice(1).join("")}</div>` : "") : "";
+    lifeArchive.innerHTML = data.life.map((item, index) => lifeMarkup(item, index, true)).join("");
     lifeArchive.querySelectorAll(".reveal").forEach(el => observer?.observe(el));
   }
 
