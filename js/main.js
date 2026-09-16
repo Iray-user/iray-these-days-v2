@@ -47,7 +47,7 @@
           <h3 class="life-title">${item.title}</h3>
           <p class="life-description">${item.body || item.description}</p>
           <p class="life-cta">
-        <a class="text-link" href="#life">EXPLORE LIFE →</a>
+        <a class="text-link" href="life.html">EXPLORE LIFE →</a>
     </p>
         </div>
       </div>
