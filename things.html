@@ -1,0 +1,3461 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iray,these days — 選物點單</title>
+
+  <style>
+    /* =========================================================
+       iray,these days — Editorial / Art Magazine
+       單一 HTML 檔：HTML + CSS + JavaScript
+    ========================================================= */
+
+    :root {
+      --paper: #f3f0e8;
+      --paper-deep: #e8e4da;
+      --ink: #151515;
+      --muted: #77736c;
+      --line: rgba(21, 21, 21, 0.22);
+      --soft-line: rgba(21, 21, 21, 0.10);
+      --white: #faf9f5;
+      --danger: #b3261e;
+      --shadow: 0 20px 50px rgba(21, 21, 21, 0.08);
+      --ease: cubic-bezier(.22, .61, .36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family:
+        "Noto Sans TC",
+        "PingFang TC",
+        "Microsoft JhengHei",
+        sans-serif;
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* ========================================
+   紙張掃描質感
+   保留原本米白底色，只增加紙張紋理
+======================================== */
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+
+      opacity: 0.32;
+
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.35' numOctaves='4' seed='8'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.32 0 0 0 0 0.27 0 0 0 .28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)'/%3E%3C/svg%3E");
+
+      background-repeat: repeat;
+      background-size: 300px 300px;
+
+      mix-blend-mode: multiply;
+    }
+
+    /* =========================
+       Header
+    ========================= */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(243, 240, 232, .92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-inner {
+      width: min(1400px, calc(100% - 40px));
+      margin: 0 auto;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand-name {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.25rem;
+      letter-spacing: -.03em;
+    }
+
+    .brand-note {
+      font-size: .68rem;
+      letter-spacing: .16em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .admin-toggle {
+      position: relative;
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      padding: 10px 15px;
+      font-size: .76rem;
+      letter-spacing: .08em;
+      transition:
+        transform .35s var(--ease),
+        background .35s var(--ease),
+        color .35s var(--ease);
+    }
+
+    .admin-toggle:hover {
+      transform: translateY(-3px);
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .admin-toggle.active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    /* =========================
+       Hero
+    ========================= */
+    .hero {
+      position: relative;
+      min-height: 560px;
+      width: min(1400px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 92px 0 90px;
+      display: grid;
+      grid-template-columns: 1.55fr .75fr;
+      align-items: end;
+      gap: 60px;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "01 / SELECTION";
+      position: absolute;
+      right: 0;
+      top: 70px;
+      font-size: .65rem;
+      letter-spacing: .2em;
+      color: var(--muted);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      transform: translate3d(var(--hero-x, 0px), var(--hero-y, 0px), 0);
+      transition: transform .25s ease-out;
+    }
+
+    .eyebrow {
+      margin-bottom: 24px;
+      font-size: .72rem;
+      letter-spacing: .22em;
+      color: var(--muted);
+    }
+
+    .hero-title {
+      margin: 0;
+      max-width: 950px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(4.2rem, 10vw, 10rem);
+      line-height: .82;
+      font-weight: 400;
+      letter-spacing: -.075em;
+      transition:
+        transform .45s var(--ease),
+        letter-spacing .45s var(--ease);
+    }
+
+    .hero-title:hover {
+      transform: translateY(-5px);
+      letter-spacing: -.055em;
+    }
+
+    .hero-subtitle {
+      width: min(530px, 100%);
+      margin: 38px 0 0 13%;
+      font-size: 13px;
+      line-height: 1.85;
+      color: #4e4b46;
+      transition: transform .5s var(--ease);
+    }
+
+    .hero-subtitle:hover {
+      transform: translateX(13px);
+    }
+
+    .hero-stamp {
+      justify-self: end;
+      width: 210px;
+      height: 210px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      transform: rotate(-8deg);
+      animation: floatStamp 9s ease-in-out infinite;
+    }
+
+    .hero-stamp-inner {
+      width: 150px;
+      height: 150px;
+      border: 1px dashed var(--line);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-family: Georgia, serif;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+
+    @keyframes floatStamp {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(-8deg);
+      }
+
+      50% {
+        transform: translateY(-13px) rotate(-4deg);
+      }
+    }
+
+    /* =========================
+       Admin panel
+    ========================= */
+    .admin-panel {
+      width: min(1400px, calc(100% - 40px));
+      margin: 0 auto;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      border-top: 0 solid var(--ink);
+      transition:
+        max-height .7s var(--ease),
+        opacity .5s ease,
+        padding .7s var(--ease),
+        border-top .5s ease;
+    }
+
+    .admin-panel.open {
+      max-height: 1500px;
+      opacity: 1;
+      padding: 42px 0 58px;
+      border-top: 1px solid var(--ink);
+    }
+
+    .admin-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .admin-heading h2 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: clamp(2rem, 4vw, 4rem);
+      font-weight: 400;
+      letter-spacing: -.05em;
+    }
+
+    .admin-heading span {
+      font-size: .7rem;
+      letter-spacing: .15em;
+      color: var(--muted);
+    }
+
+    .admin-form {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 22px 16px;
+    }
+
+    .field {
+      position: relative;
+      grid-column: span 4;
+    }
+
+    .field.wide {
+      grid-column: span 8;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 9px;
+      font-size: .68rem;
+      letter-spacing: .14em;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select,
+    .field textarea,
+    .customer-field input {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      outline: none;
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+      padding: 12px 0;
+      transition:
+        transform .3s var(--ease),
+        border-color .3s ease;
+    }
+
+    .customer-field input {
+      font-size: 13px;
+    }
+
+    .field textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus,
+    .customer-field input:focus {
+      transform: translateY(-3px);
+      border-bottom-color: var(--ink);
+    }
+
+    .submit-admin {
+      grid-column: 9 / -1;
+      justify-self: end;
+      align-self: end;
+      min-width: 190px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      padding: 15px 20px;
+      transition:
+        transform .35s var(--ease),
+        background .35s ease,
+        color .35s ease;
+    }
+
+    .submit-admin:hover {
+      transform: translateY(-4px);
+      background: transparent;
+      color: var(--ink);
+    }
+
+
+    /* =========================================================
+       管理員管理區｜商品編輯＋訂單管理
+       維持 things.html 的細線、低彩度與緊湊比例
+    ========================================================= */
+
+    .admin-management {
+      margin-top: 52px;
+      padding-top: 28px;
+      border-top: 1px solid var(--ink);
+    }
+
+    .admin-management-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .admin-management-title {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 400;
+      letter-spacing: -.04em;
+    }
+
+    .admin-management-meta {
+      font-size: .58rem;
+      letter-spacing: .14em;
+      color: var(--muted);
+    }
+
+    .admin-order-list {
+      border-top: 1px solid var(--soft-line);
+    }
+
+    .order-row {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr .75fr .9fr 1.05fr;
+      gap: 16px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--soft-line);
+      transition: transform .35s var(--ease), background .35s ease;
+    }
+
+    .order-row:hover {
+      transform: translateX(5px);
+      background: rgba(255, 255, 255, .18);
+    }
+
+    .order-row-head {
+      color: var(--muted);
+      font-size: .56rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .order-cell {
+      min-width: 0;
+      font-size: .72rem;
+    }
+
+    .order-id {
+      font-family: Georgia, serif;
+      font-size: .9rem;
+    }
+
+    .order-items {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .order-total {
+      font-family: Georgia, serif;
+      font-size: .92rem;
+    }
+
+    .order-time {
+      color: var(--muted);
+      font-size: .64rem;
+    }
+
+    .order-status {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+      padding: 7px 22px 7px 0;
+      font-size: .66rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(135deg, currentColor 50%, transparent 50%);
+      background-position:
+        calc(100% - 7px) 50%,
+        calc(100% - 3px) 50%;
+      background-size: 4px 4px, 4px 4px;
+      background-repeat: no-repeat;
+    }
+
+    .edit-btn {
+      position: absolute;
+      top: 8px;
+      right: 48px;
+      z-index: 3;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 7px;
+      border: 1px solid var(--line);
+      background: rgba(243, 240, 232, .92);
+      color: var(--ink);
+      display: none;
+      place-items: center;
+      font-size: .58rem;
+      letter-spacing: .05em;
+      transition: transform .3s var(--ease), background .3s ease, color .3s ease;
+    }
+
+    .admin-mode .edit-btn {
+      display: grid;
+    }
+
+    .edit-btn:hover {
+      transform: translateY(-3px);
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .menu-card.is-sold-out .menu-image {
+      filter: grayscale(.65) saturate(.35) contrast(.94);
+    }
+
+    .sold-out-mark {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      padding: 5px 8px;
+      border: 1px solid var(--ink);
+      background: rgba(243, 240, 232, .94);
+      font-size: .58rem;
+      letter-spacing: .13em;
+    }
+
+    .add-btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .admin-editing {
+      margin-bottom: 16px;
+      padding: 9px 12px;
+      border-left: 2px solid var(--ink);
+      background: rgba(255, 255, 255, .2);
+      font-size: .68rem;
+      color: var(--muted);
+    }
+
+    .admin-form-actions {
+      grid-column: 10 / -1;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .cancel-edit {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      padding: 11px 15px;
+      font-size: .62rem;
+      display: none;
+    }
+
+    .admin-form.is-editing .cancel-edit {
+      display: inline-block;
+    }
+
+    @media (max-width: 980px) {
+      .order-row {
+        grid-template-columns: 1fr 1.1fr .8fr 1fr;
+      }
+
+      .order-row>.order-cell:nth-child(5) {
+        grid-column: 4;
+      }
+
+      .admin-form-actions {
+        grid-column: 9 / -1;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .admin-management-head {
+        display: block;
+      }
+
+      .admin-management-meta {
+        display: block;
+        margin-top: 5px;
+      }
+
+      .order-row-head {
+        display: none;
+      }
+
+      .order-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 14px;
+      }
+
+      .order-row>.order-cell:nth-child(1) {
+        grid-column: 1 / 2;
+      }
+
+      .order-row>.order-cell:nth-child(2) {
+        grid-column: 2 / 3;
+      }
+
+      .order-row>.order-cell:nth-child(3),
+      .order-row>.order-cell:nth-child(4),
+      .order-row>.order-cell:nth-child(5) {
+        grid-column: 1 / -1;
+      }
+
+      .admin-form-actions {
+        grid-column: 1 / -1;
+        justify-content: stretch;
+      }
+
+      .admin-form-actions .submit-admin,
+      .admin-form-actions .cancel-edit {
+        flex: 1;
+      }
+    }
+
+    /* =========================
+       Main content
+    ========================= */
+    .main-layout {
+      width: min(1400px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 40px 0 120px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(320px, .7fr);
+      gap: 70px;
+      align-items: start;
+    }
+
+    .section-head {
+      border-top: 1px solid var(--ink);
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 34px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(2.2rem, 4vw, 4.5rem);
+      letter-spacing: -.06em;
+    }
+
+    .section-head p {
+      margin: 0;
+      font-size: .7rem;
+      letter-spacing: .14em;
+      color: var(--muted);
+    }
+
+    /* =========================
+       Menu cards
+    ========================= */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 50px 28px;
+    }
+
+    .menu-card {
+      position: relative;
+      min-width: 0;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      transition:
+        transform .45s var(--ease),
+        background .45s ease;
+    }
+
+    .menu-card:hover {
+      transform: translateX(7px);
+      background: rgba(255, 255, 255, .22);
+    }
+
+    .image-wrap {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: var(--paper-deep);
+      margin-bottom: 17px;
+    }
+
+    .menu-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      filter: saturate(.75) contrast(.96);
+      transition:
+        transform .8s var(--ease),
+        filter .6s ease;
+    }
+
+    .menu-card:hover .menu-image {
+      transform: scale(1.035);
+      filter: saturate(.9) contrast(1);
+    }
+
+    .product-number {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 5px 8px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      font-size: .64rem;
+      letter-spacing: .12em;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 3;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(179, 38, 30, .5);
+      background: rgba(243, 240, 232, .92);
+      color: var(--danger);
+      display: none;
+      place-items: center;
+      transition:
+        transform .3s var(--ease),
+        background .3s ease,
+        color .3s ease;
+    }
+
+    .admin-mode .delete-btn {
+      display: grid;
+    }
+
+    .delete-btn:hover {
+      transform: translateY(-3px);
+      background: var(--danger);
+      color: white;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .category {
+      font-size: .66rem;
+      letter-spacing: .13em;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 3px;
+    }
+
+    .product-id {
+      color: var(--muted);
+      font-size: .65rem;
+      letter-spacing: .12em;
+    }
+
+    .menu-card h3 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.2rem, 1.65vw, 1.8rem);
+      line-height: 1;
+      font-weight: 400;
+      letter-spacing: -.04em;
+    }
+
+    .description {
+      margin: 9px 0 15px;
+      max-width: 90%;
+      color: #66625c;
+      font-size: .74rem;
+      line-height: 1.7;
+    }
+
+    .card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-top: 1px solid var(--soft-line);
+      padding-top: 13px;
+    }
+
+    .price {
+      font-family: Georgia, serif;
+      font-size: 1.25rem;
+    }
+
+    .add-btn {
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      padding: 9px 13px;
+      font-size: .7rem;
+      letter-spacing: .08em;
+      transition:
+        transform .35s var(--ease),
+        background .35s ease,
+        color .35s ease;
+    }
+
+    .add-btn:hover {
+      transform: translateY(-3px);
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .empty-state {
+      border-top: 1px solid var(--line);
+      padding: 45px 0;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    /* =========================
+       Cart
+    ========================= */
+    .cart-panel {
+      position: sticky;
+      top: 100px;
+      border: 1px solid var(--ink);
+      background: rgba(250, 249, 245, .45);
+      box-shadow: var(--shadow);
+      animation: slowFloat 8s ease-in-out infinite;
+    }
+
+    @keyframes slowFloat {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .cart-head {
+      padding: 22px 22px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .cart-head h2 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 2.1rem;
+      font-weight: 400;
+      letter-spacing: -.05em;
+    }
+
+    .cart-count {
+      font-size: .7rem;
+      letter-spacing: .12em;
+      color: var(--muted);
+    }
+
+    .cart-items {
+      padding: 8px 22px;
+      max-height: 430px;
+      overflow-y: auto;
+    }
+
+    .cart-empty {
+      padding: 38px 0;
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.8;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 15px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--soft-line);
+    }
+
+    .cart-item-name {
+      font-family: Georgia, serif;
+      font-size: 1.08rem;
+    }
+
+    .cart-item-price {
+      margin-top: 5px;
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      height: 32px;
+    }
+
+    .qty-control button {
+      width: 31px;
+      height: 30px;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      transition: background .25s ease;
+    }
+
+    .qty-control button:hover {
+      background: var(--paper-deep);
+    }
+
+    .qty-value {
+      min-width: 30px;
+      text-align: center;
+      font-size: .75rem;
+    }
+
+    .cart-summary {
+      padding: 20px 22px 22px;
+      border-top: 1px solid var(--ink);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 14px;
+      font-size: .78rem;
+    }
+
+    .summary-total {
+      font-family: Georgia, serif;
+      font-size: 1.65rem;
+      margin-bottom: 20px;
+    }
+
+    .customer-field label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: .67rem;
+      letter-spacing: .12em;
+    }
+
+    .order-btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 15px 18px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      letter-spacing: .08em;
+      transition:
+        transform .35s var(--ease),
+        background .35s ease,
+        color .35s ease;
+    }
+
+    .order-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .order-btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    /* =========================
+       Loading
+    ========================= */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: grid;
+      place-items: center;
+      background: rgba(243, 240, 232, .72);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .3s ease, visibility .3s ease;
+    }
+
+    .loading-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .loader {
+      width: 58px;
+      height: 58px;
+      border: 1px solid var(--ink);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      box-shadow:
+        0 0 10px rgba(21, 21, 21, .18),
+        0 0 28px rgba(21, 21, 21, .08);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =========================
+       Modal
+    ========================= */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 180;
+      display: grid;
+      place-items: center;
+      background: rgba(21, 21, 21, .25);
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-box {
+      width: min(460px, calc(100% - 36px));
+      background: var(--paper);
+      border: 1px solid var(--ink);
+      padding: 34px;
+      transform: translateY(35px);
+      transition: transform .45s var(--ease);
+    }
+
+    .modal.show .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-label {
+      color: var(--muted);
+      font-size: .67rem;
+      letter-spacing: .15em;
+      margin-bottom: 18px;
+    }
+
+    .modal-title {
+      margin: 0 0 13px;
+      font-family: Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: -.05em;
+    }
+
+    .modal-text {
+      margin: 0 0 25px;
+      color: #66625c;
+      line-height: 1.75;
+      font-size: .84rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-actions button {
+      padding: 11px 16px;
+      border: 1px solid var(--ink);
+      background: transparent;
+    }
+
+    .modal-actions .confirm {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    /* =========================
+       Toast
+    ========================= */
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 220;
+      min-width: min(380px, calc(100vw - 48px));
+      border: 1px solid var(--ink);
+      background: var(--paper);
+      padding: 17px 20px;
+      box-shadow: var(--shadow);
+      transform: translateY(25px);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        transform .45s var(--ease),
+        opacity .45s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-title {
+      font-family: Georgia, serif;
+      font-size: 1.15rem;
+      margin-bottom: 5px;
+    }
+
+    .toast-message {
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    /* =========================
+       Footer
+    ========================= */
+    footer {
+      width: min(1400px, calc(100% - 40px));
+      margin: 0 auto;
+      border-top: 1px solid var(--ink);
+      padding: 20px 0 50px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      font-size: .68rem;
+      letter-spacing: .1em;
+      color: var(--muted);
+    }
+
+    /* =========================
+       RWD
+    ========================= */
+    @media (max-width: 980px) {
+      .hero {
+        min-height: 500px;
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stamp {
+        position: absolute;
+        right: 0;
+        bottom: 55px;
+        width: 150px;
+        height: 150px;
+      }
+
+      .hero-stamp-inner {
+        width: 105px;
+        height: 105px;
+        font-size: .72rem;
+      }
+
+      .main-layout {
+        grid-template-columns: 1fr;
+        gap: 70px;
+      }
+
+      .cart-panel {
+        position: relative;
+        top: auto;
+      }
+
+      .field,
+      .field.wide {
+        grid-column: span 6;
+      }
+
+      .submit-admin {
+        grid-column: span 6;
+      }
+    }
+
+    @media (max-width: 650px) {
+
+      .header-inner,
+      .hero,
+      .admin-panel,
+      .main-layout,
+      footer {
+        width: min(100% - 28px, 1400px);
+      }
+
+      .header-inner {
+        min-height: 62px;
+      }
+
+      .brand-note {
+        display: none;
+      }
+
+      .hero {
+        padding: 75px 0 70px;
+        min-height: 500px;
+      }
+
+      .hero::after {
+        top: 30px;
+      }
+
+      .hero-title {
+        font-size: clamp(3.5rem, 18vw, 6rem);
+      }
+
+      .hero-subtitle {
+        margin-left: 0;
+      }
+
+      .hero-stamp {
+        opacity: .35;
+        right: -35px;
+        bottom: 25px;
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field,
+      .field.wide,
+      .field.full,
+      .submit-admin {
+        grid-column: 1 / -1;
+      }
+
+      .submit-admin {
+        width: 100%;
+      }
+
+      .section-head {
+        align-items: flex-end;
+      }
+
+      .section-head p {
+        text-align: right;
+      }
+
+      .cart-items {
+        max-height: none;
+      }
+
+      footer {
+        flex-direction: column;
+      }
+    }
+
+    /* =========================================================
+       管理員介面比例微調｜參考 things.html
+       - 標題不做過大處理
+       - 欄位採細字、細線、緊湊間距
+       - 讓輸入區維持 Editorial 的留白感
+    ========================================================= */
+    .admin-panel.open {
+      padding: 30px 0 42px;
+    }
+
+    .admin-heading {
+      margin-bottom: 20px;
+      align-items: baseline;
+    }
+
+    .admin-heading h2 {
+      font-size: clamp(1.7rem, 2.7vw, 2.6rem);
+      letter-spacing: -.045em;
+    }
+
+    .admin-heading span {
+      font-size: .58rem;
+      letter-spacing: .13em;
+    }
+
+    .admin-form {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 18px 22px;
+      align-items: end;
+    }
+
+    /* 第一排：名稱／分類／價格／狀態 */
+    .admin-form .field:nth-child(1) {
+      grid-column: 1 / 4;
+    }
+
+    .admin-form .field:nth-child(2) {
+      grid-column: 4 / 7;
+    }
+
+    .admin-form .field:nth-child(3) {
+      grid-column: 7 / 10;
+    }
+
+    .admin-form .field:nth-child(6) {
+      grid-column: 10 / 13;
+    }
+
+    /* 第二排：圖片路徑／描述 */
+    .admin-form .field:nth-child(4) {
+      grid-column: 1 / 7;
+    }
+
+    .admin-form .field:nth-child(5) {
+      grid-column: 7 / 13;
+    }
+
+    .field label {
+      margin-bottom: 6px;
+      font-size: .58rem;
+      letter-spacing: .12em;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      font-size: .78rem;
+      padding: 8px 0;
+    }
+
+    .field textarea {
+      min-height: 54px;
+      line-height: 1.6;
+    }
+
+    .submit-admin {
+      grid-column: 10 / -1;
+      min-width: 150px;
+      padding: 11px 15px;
+      font-size: .62rem;
+      letter-spacing: .08em;
+    }
+
+    @media (max-width: 980px) {
+
+      .admin-form .field:nth-child(1),
+      .admin-form .field:nth-child(2),
+      .admin-form .field:nth-child(3),
+      .admin-form .field:nth-child(6) {
+        grid-column: span 3;
+      }
+
+      .admin-form .field:nth-child(4),
+      .admin-form .field:nth-child(5) {
+        grid-column: span 6;
+      }
+
+      .submit-admin {
+        grid-column: auto;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .admin-panel.open {
+        padding: 24px 0 34px;
+      }
+
+      .admin-heading {
+        display: block;
+      }
+
+      .admin-heading span {
+        display: block;
+        margin-top: 5px;
+      }
+
+      .field,
+      .field.wide {
+        grid-column: 1 / -1;
+      }
+
+      .submit-admin {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+    }
+
+    /* =========================================================
+       尺寸微調｜參考 things.html 的比例
+       - 商品改為 3 欄，避免圖片過大
+       - 圖片改為 1:1
+       - 商品文字、按鈕與間距縮小
+       - 保留原本 Editorial / Art Magazine 視覺與所有功能
+    ========================================================= */
+
+    .hero {
+      min-height: 500px;
+      padding: 78px 0 72px;
+    }
+
+    .hero-title {
+      font-size: clamp(3.8rem, 8vw, 7.5rem);
+    }
+
+    .hero-subtitle {
+      width: min(460px, 100%);
+      margin-top: 13px;
+      font-size: clamp(.9rem, 1.2vw, 1.05rem);
+      line-height: 1.8;
+    }
+
+    .main-layout {
+      grid-template-columns: minmax(0, 1.9fr) minmax(270px, .62fr);
+      gap: 54px;
+      padding-top: 28px;
+      padding-bottom: 100px;
+    }
+
+    .section-head {
+      margin-bottom: 28px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.9rem, 3vw, 3.2rem);
+    }
+
+    .menu-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 46px 22px;
+    }
+
+    .menu-card {
+      padding-top: 10px;
+    }
+
+    .image-wrap {
+      aspect-ratio: 1 / 1;
+      margin-bottom: 13px;
+    }
+
+    .product-number {
+      top: 8px;
+      left: 8px;
+      padding: 4px 6px;
+      font-size: .58rem;
+    }
+
+    .delete-btn {
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+    }
+
+    .card-meta {
+      margin-bottom: 6px;
+    }
+
+    .category,
+    .product-id {
+      font-size: .58rem;
+    }
+
+    .menu-card h3 {
+      font-size: clamp(1.15rem, 1.65vw, 1.45rem);
+      line-height: 1.15;
+    }
+
+    .description {
+      margin: 8px 0 12px;
+      max-width: 100%;
+      font-size: .72rem;
+      line-height: 1.7;
+    }
+
+    .card-bottom {
+      padding-top: 10px;
+      gap: 8px;
+    }
+
+    .price {
+      font-size: .78rem;
+      letter-spacing: .04em;
+    }
+
+    .add-btn {
+      padding: 7px 9px;
+      font-size: .58rem;
+      letter-spacing: .06em;
+    }
+
+    .cart-panel {
+      top: 92px;
+    }
+
+    .cart-head {
+      padding: 17px 18px 14px;
+    }
+
+    .cart-head h2 {
+      font-size: 1.65rem;
+    }
+
+    .cart-items {
+      padding: 6px 18px;
+      max-height: 380px;
+    }
+
+    .cart-empty {
+      padding: 30px 0;
+      font-size: .74rem;
+    }
+
+    .cart-item {
+      gap: 10px;
+      padding: 14px 0;
+    }
+
+    .cart-item-name {
+      font-size: .92rem;
+    }
+
+    .cart-item-price {
+      font-size: .68rem;
+    }
+
+    .cart-summary {
+      padding: 16px 18px 18px;
+    }
+
+    .summary-row {
+      margin-bottom: 10px;
+      font-size: .7rem;
+    }
+
+    .summary-total {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+    }
+
+    .order-btn {
+      margin-top: 14px;
+      padding: 12px 15px;
+      font-size: .72rem;
+    }
+
+    @media (max-width: 980px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+        gap: 60px;
+      }
+
+      .menu-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 42px 22px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .hero {
+        padding: 65px 0 60px;
+        min-height: 430px;
+      }
+
+      .hero-title {
+        font-size: clamp(3.2rem, 17vw, 5.2rem);
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr;
+        gap: 38px;
+      }
+
+      .menu-card h3 {
+        font-size: 1.18rem;
+      }
+
+      .description {
+        max-width: 92%;
+        font-size: .68rem;
+      }
+    }
+
+    /* =========================================================
+   Order 表單｜欄位錯誤提示
+========================================================= */
+
+    .field-error {
+      display: block;
+      min-height: 16px;
+      margin-top: 6px;
+      font-size: .58rem;
+      line-height: 1.5;
+      letter-spacing: .04em;
+      color: #8a2f2f;
+      opacity: 0;
+      transform: translateY(-3px);
+      transition:
+        opacity .25s ease,
+        transform .25s ease;
+    }
+
+    .field-error.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+
+    /* 錯誤欄位 */
+    .customer-field.has-error input {
+      border-bottom-color: #8a2f2f;
+    }
+
+
+    /* 正確欄位 */
+    .customer-field.is-valid input {
+      border-bottom-color: var(--ink);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       頁首
+  ========================== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#">
+        <span class="brand-name">iray,these days</span>
+        <span class="brand-note">selection / daily things</span>
+      </a>
+
+      <button class="admin-toggle" id="adminToggle" type="button">
+        切換為管理員模式
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================
+       Hero
+  ========================== -->
+  <section class="hero" id="hero">
+    <div class="hero-content" id="heroContent">
+      <div class="eyebrow">IRAY,THESE DAYS / SELECTED THINGS</div>
+
+      <h1 class="hero-title">Things<br />Archive</h1>
+
+      <p class="hero-subtitle">
+        一些被留下來的日常物件。<br />
+        不急著定義用途，只挑選那些會讓生活
+        稍微變得舒服一點的東西。
+      </p>
+    </div>
+
+    <div class="hero-stamp" aria-hidden="true">
+      <div class="hero-stamp-inner">
+        OBJECTS<br />
+        FOR<br />
+        THESE DAYS
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       管理員新增選物
+  ========================== -->
+  <section class="admin-panel" id="adminPanel">
+    <div class="admin-heading">
+      <h2>Add a thing.</h2>
+      <span>ADMIN / NEW ENTRY</span>
+    </div>
+
+    <form class="admin-form" id="adminForm">
+      <div class="field">
+        <label for="productName">名稱</label>
+        <input id="productName" name="name" type="text" required />
+      </div>
+
+      <div class="field">
+        <label for="productCategory">分類</label>
+        <select id="productCategory" name="category" required>
+          <option value="" selected disabled>請選擇分類</option>
+          <option value="餐具">餐具</option>
+          <option value="燈具">燈具</option>
+          <option value="布料">布料</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="productPrice">價格</label>
+        <input id="productPrice" name="price" type="number" min="0" step="1" required />
+      </div>
+
+      <div class="field wide">
+        <label for="productImage">圖片路徑 / 網址</label>
+        <input id="productImage" name="imageUrl" type="text" placeholder="例如：assets/images/things/things-01.jpg"
+          required />
+      </div>
+
+      <div class="field wide">
+        <label for="productDescription">描述</label>
+        <textarea id="productDescription" name="description" required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="productStatus">狀態</label>
+        <select id="productStatus" name="status">
+          <option value="上架">上架</option>
+          <option value="售罄">售罄</option>
+          <option value="下架">下架</option>
+        </select>
+      </div>
+
+      <div class="admin-form-actions">
+        <button class="cancel-edit" type="button" id="cancelEditBtn">
+          CANCEL
+        </button>
+
+        <button class="submit-admin" type="submit">
+          ＋ 新增選物
+        </button>
+      </div>
+    </form>
+
+    <div class="admin-management" id="adminManagement">
+      <div class="admin-management-head">
+        <h3 class="admin-management-title">Order Archive</h3>
+        <span class="admin-management-meta" id="orderArchiveMeta">0 ORDERS</span>
+      </div>
+
+      <div class="admin-order-list" id="orderList">
+        <div class="empty-state">開啟管理員模式後載入訂單資料。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       選物 + Order
+  ========================== -->
+  <main class="main-layout">
+
+    <section>
+      <div class="section-head">
+        <h2>Selected Things</h2>
+        <p id="menuStatus">LOADING / 00</p>
+      </div>
+
+      <div class="menu-grid" id="menuGrid"></div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        目前沒有可顯示的選物。
+      </div>
+    </section>
+
+    <aside class="cart-panel">
+      <div class="cart-head">
+        <h2>Order</h2>
+        <span class="cart-count" id="cartCount">0 ITEMS</span>
+      </div>
+
+      <div class="cart-items" id="cartItems">
+        <div class="cart-empty">
+          還沒有選擇任何選物。<br />
+          慢慢看，挑一件你喜歡的。
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>SELECTED</span>
+          <span id="summaryCount">0</span>
+        </div>
+
+        <div class="summary-row summary-total">
+          <span>TOTAL</span>
+          <span>NT$ <span id="cartTotal">0</span></span>
+        </div>
+
+        <div class="customer-field">
+          <label for="customerName">姓名</label>
+
+          <input id="customerName" type="text" placeholder="請輸入姓名" autocomplete="name" maxlength="20" required />
+
+          <small class="field-error" id="customerNameError"></small>
+        </div>
+
+
+        <div class="customer-field">
+          <label for="customerPhone">連絡電話</label>
+
+          <input id="customerPhone" type="tel" inputmode="numeric" placeholder="0912345678" autocomplete="tel"
+            maxlength="12" required />
+
+          <small class="field-error" id="customerPhoneError"></small>
+        </div>
+
+
+        <div class="customer-field">
+          <label for="customerAddress">寄送地址</label>
+
+          <input id="customerAddress" type="text" placeholder="請輸入完整寄送地址" autocomplete="street-address" maxlength="100"
+            required />
+
+          <small class="field-error" id="customerAddressError"></small>
+        </div>
+        <button class="order-btn" id="orderBtn" type="button" disabled>
+          ORDER
+        </button>
+      </div>
+    </aside>
+
+  </main>
+
+  <footer>
+    <span>iray,these days</span>
+    <span>objects / rituals / everyday</span>
+  </footer>
+
+  <!-- =========================
+       Loading
+  ========================== -->
+  <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+    <div class="loader" aria-label="載入中"></div>
+  </div>
+
+  <!-- =========================
+       確認 Modal
+  ========================== -->
+  <div class="modal" id="confirmModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <div class="modal-label">CONFIRM ACTION</div>
+      <h3 class="modal-title" id="modalTitle">確認刪除？</h3>
+      <p class="modal-text" id="modalText">
+        這個動作會同步刪除 Google 試算表中的資料。
+      </p>
+
+      <div class="modal-actions">
+        <button type="button" id="modalCancel">取消</button>
+        <button type="button" class="confirm" id="modalConfirm">確認</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       Toast
+  ========================== -->
+  <div class="toast" id="toast">
+    <div class="toast-title" id="toastTitle">完成</div>
+    <div class="toast-message" id="toastMessage"></div>
+  </div>
+
+
+  <script>
+    /* =========================================================
+       API 設定
+       ---------------------------------------------------------
+       ★★★ 請把下面的 API_URL 換成你的 Google Apps Script
+       Web App /exec 網址。
+
+       範例：
+       const API_URL =
+         "https://script.google.com/macros/s/XXXXXXXXXXXX/exec";
+    ========================================================= */
+
+    const API_URL = "https://script.google.com/macros/s/AKfycbxOPI-f09dyeoL01OAocLl9eTdrtewCdHGPXfpfixIOBIV3wyf_jiPLjkBet4Ebz6Nkcg/exec";
+
+
+    /* =========================================================
+       全域狀態
+    ========================================================= */
+
+    let menuData = [];
+    let cart = new Map();
+    let orderData = [];
+    let isAdminMode = false;
+    let pendingDeleteId = null;
+    let editingProductId = null;
+    let toastTimer = null;
+
+
+    /* =========================================================
+       DOM
+    ========================================================= */
+
+    const $ = (selector) => document.querySelector(selector);
+
+    const menuGrid = $("#menuGrid");
+    const emptyState = $("#emptyState");
+    const menuStatus = $("#menuStatus");
+
+    const cartItems = $("#cartItems");
+    const cartCount = $("#cartCount");
+    const summaryCount = $("#summaryCount");
+    const cartTotal = $("#cartTotal");
+    const customerName = $("#customerName");
+    const customerPhone = $("#customerPhone");
+    const customerAddress = $("#customerAddress");
+
+    const customerNameError = $("#customerNameError");
+    const customerPhoneError = $("#customerPhoneError");
+    const customerAddressError = $("#customerAddressError");
+
+    const orderBtn = $("#orderBtn");
+
+    const loadingOverlay = $("#loadingOverlay");
+
+    const adminToggle = $("#adminToggle");
+    const adminPanel = $("#adminPanel");
+    const adminForm = $("#adminForm");
+    const adminManagement = $("#adminManagement");
+    const orderList = $("#orderList");
+    const orderArchiveMeta = $("#orderArchiveMeta");
+    const productName = $("#productName");
+    const productCategory = $("#productCategory");
+    const productPrice = $("#productPrice");
+    const productImage = $("#productImage");
+    const productDescription = $("#productDescription");
+    const productStatus = $("#productStatus");
+    const cancelEditBtn = $("#cancelEditBtn");
+
+    const confirmModal = $("#confirmModal");
+    const modalTitle = $("#modalTitle");
+    const modalText = $("#modalText");
+    const modalCancel = $("#modalCancel");
+    const modalConfirm = $("#modalConfirm");
+
+    const toast = $("#toast");
+    const toastTitle = $("#toastTitle");
+    const toastMessage = $("#toastMessage");
+
+
+    /* =========================================================
+       工具函式
+    ========================================================= */
+
+    function showLoading() {
+      loadingOverlay.classList.add("show");
+      loadingOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.remove("show");
+      loadingOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function showToast(title, message) {
+      clearTimeout(toastTimer);
+
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+
+      toast.classList.add("show");
+
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3200);
+    }
+
+    function formatPrice(value) {
+      const number = Number(value) || 0;
+      return number.toLocaleString("zh-TW");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    /*
+      圖片載入失敗時，使用內聯 SVG。
+      不依賴外部圖片，避免破圖。
+    */
+    function imageFallback(event) {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 800 600">
+          <rect width="800" height="600" fill="#e8e4da"/>
+          <path d="M120 430 L300 250 L420 360 L510 275 L680 430"
+                fill="none"
+                stroke="#77736c"
+                stroke-width="4"/>
+          <circle cx="520" cy="190" r="42"
+                  fill="none"
+                  stroke="#77736c"
+                  stroke-width="4"/>
+          <text x="400" y="510"
+                text-anchor="middle"
+                font-family="Georgia, serif"
+                font-size="28"
+                fill="#77736c">
+            image unavailable
+          </text>
+        </svg>
+      `;
+
+      event.target.src =
+        "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(svg);
+
+      event.target.onerror = null;
+    }
+
+
+    /* =========================================================
+       API：POST 統一入口
+       ---------------------------------------------------------
+       Google Apps Script 要求：
+       Content-Type: text/plain
+       Body：JSON 字串
+    ========================================================= */
+
+    async function postToApi(payload) {
+      if (!API_URL || API_URL.includes("YOUR_GOOGLE")) {
+        throw new Error("請先在程式碼中設定 API_URL。");
+      }
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.status !== "success") {
+        throw new Error(result.message || "API 執行失敗");
+      }
+
+      return result;
+    }
+
+
+    /* =========================================================
+       GET：讀取 menu
+       action = read
+    ========================================================= */
+
+    async function loadMenu() {
+      try {
+        if (!API_URL || API_URL.includes("YOUR_GOOGLE")) {
+          throw new Error("請先在程式碼中設定 API_URL。");
+        }
+
+        showLoading();
+        menuStatus.textContent = "LOADING / 01";
+
+        const response = await fetch(
+          `${API_URL}?action=read`,
+          {
+            method: "GET",
+            cache: "no-store"
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.status !== "success") {
+          throw new Error(result.message || "讀取資料失敗");
+        }
+
+        menuData = Array.isArray(result.data)
+          ? result.data
+          : [];
+
+        // 如果某件選物已售罄或下架，從目前清單移除。
+        for (const [key, item] of cart) {
+          const latest = menuData.find(
+            product => String(product.id) === key
+          );
+
+          if (!latest || String(latest.status).trim() !== "上架") {
+            cart.delete(key);
+          } else {
+            item.price = Number(latest.price);
+            item.name = latest.name;
+          }
+        }
+
+        renderMenu();
+        renderCart();
+
+        const availableCount = menuData.filter(
+          item => String(item.status).trim() === "上架"
+        ).length;
+
+        menuStatus.textContent =
+          `AVAILABLE / ${String(availableCount).padStart(2, "0")}`;
+
+      } catch (error) {
+        console.error("GET /read 失敗：", error);
+
+        menuGrid.innerHTML = "";
+        emptyState.hidden = false;
+        emptyState.textContent =
+          `資料載入失敗：${error.message}`;
+
+        menuStatus.textContent = "ERROR / 01";
+
+        showToast("載入失敗", error.message);
+
+      } finally {
+        hideLoading();
+      }
+    }
+
+    /* =========================================================
+       Render：選物清單
+    ========================================================= */
+
+    function renderMenu() {
+      menuGrid.innerHTML = "";
+
+      if (!menuData.length) {
+        emptyState.hidden = false;
+        return;
+      }
+
+      emptyState.hidden = true;
+
+      menuData.forEach((item, index) => {
+        const isSoldOut = String(item.status).trim() === "售罄";
+
+        const card = document.createElement("article");
+        card.className =
+          `menu-card${isSoldOut ? " is-sold-out" : ""}`;
+
+        card.innerHTML = `
+          <div class="image-wrap">
+            <span class="product-number">
+              ${String(index + 1).padStart(2, "0")}
+            </span>
+
+            ${isSoldOut ? `
+              <span class="sold-out-mark">SOLD OUT</span>
+            ` : ""}
+
+            <button
+              class="edit-btn"
+              type="button"
+              title="編輯選物"
+              data-edit-id="${escapeHtml(item.id)}"
+            >
+              EDIT
+            </button>
+
+            <button
+              class="delete-btn"
+              type="button"
+              title="刪除選物"
+              data-delete-id="${escapeHtml(item.id)}"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+
+            <img
+              class="menu-image"
+              src="${escapeHtml(item.imageUrl)}"
+              alt="${escapeHtml(item.name)}"
+              loading="lazy"
+              onerror="imageFallback(event)"
+            />
+          </div>
+
+          <div class="card-meta">
+            <span class="category">
+              ${escapeHtml(item.category)}
+            </span>
+
+            <span class="product-id">
+              NO.${escapeHtml(item.id)}
+            </span>
+          </div>
+
+          <h3>${escapeHtml(item.name)}</h3>
+
+          <p class="description">
+            ${escapeHtml(item.description)}
+          </p>
+
+          <div class="card-bottom">
+            <span class="price">
+              NT$ ${formatPrice(item.price)}
+            </span>
+
+            <button
+              class="add-btn"
+              type="button"
+              data-add-id="${escapeHtml(item.id)}"
+              ${isSoldOut ? "disabled" : ""}
+            >
+              ${isSoldOut ? "SOLD OUT" : "+add chart"}
+            </button>
+          </div>
+        `;
+
+        menuGrid.appendChild(card);
+      });
+    }
+
+    /* =========================================================
+       購物車
+    ========================================================= */
+
+    function addToCart(id) {
+      const key = String(id);
+      const product = menuData.find(
+        item => String(item.id) === key
+      );
+
+      if (!product) {
+        showToast("加入失敗", "找不到這件選物。");
+        return;
+      }
+
+      if (String(product.status).trim() === "售罄") {
+        showToast("暫時售罄", "這件選物目前無法加入清單。");
+        return;
+      }
+
+      if (String(product.status).trim() !== "上架") {
+        showToast("暫不可選", "這件選物目前未開放選取。");
+        return;
+      }
+
+      if (cart.has(key)) {
+        cart.get(key).quantity += 1;
+      } else {
+        cart.set(key, {
+          ...product,
+          quantity: 1
+        });
+      }
+
+      renderCart();
+
+      showToast(
+        "已加入",
+        `${product.name} 已加入選物清單。`
+      );
+    }
+
+    function changeQuantity(id, delta) {
+      const key = String(id);
+
+      if (!cart.has(key)) {
+        return;
+      }
+
+      const item = cart.get(key);
+      item.quantity += delta;
+
+      if (item.quantity <= 0) {
+        cart.delete(key);
+      }
+
+      renderCart();
+    }
+
+    function calculateTotal() {
+      return [...cart.values()].reduce(
+        (total, item) =>
+          total + Number(item.price) * item.quantity,
+        0
+      );
+    }
+
+    function calculateItemCount() {
+      return [...cart.values()].reduce(
+        (total, item) => total + item.quantity,
+        0
+      );
+    }
+
+    function renderCart() {
+      const items = [...cart.values()];
+      const count = calculateItemCount();
+      const total = calculateTotal();
+
+      cartCount.textContent =
+        `${count} ${count === 1 ? "ITEM" : "ITEMS"}`;
+
+      summaryCount.textContent = count;
+      cartTotal.textContent = formatPrice(total);
+
+      const name =
+        customerName.value.trim();
+
+      const phone =
+        customerPhone.value.trim();
+
+      const address =
+        customerAddress.value.trim();
+
+      const nameValid =
+        /^[\u4e00-\u9fffA-Za-z\s]{2,20}$/.test(name);
+
+      const phoneValid =
+        /^09\d{8}$/.test(
+          phone.replace(/[\s-]/g, "")
+        );
+
+      const addressValid =
+        address.length >= 6 &&
+        !/^\d+$/.test(address) &&
+        !/^[A-Za-z\s]+$/.test(address);
+
+      orderBtn.disabled =
+        items.length === 0 ||
+        !nameValid ||
+        !phoneValid ||
+        !addressValid;
+
+      if (!items.length) {
+        cartItems.innerHTML = `
+          <div class="cart-empty">
+            還沒有選擇任何選物。<br />
+            慢慢看，挑一件你喜歡的。
+          </div>
+        `;
+        return;
+      }
+
+      cartItems.innerHTML = items.map(item => `
+        <div class="cart-item">
+          <div>
+            <div class="cart-item-name">
+              ${escapeHtml(item.name)}
+            </div>
+
+            <div class="cart-item-price">
+              NT$ ${formatPrice(item.price)} × ${item.quantity}
+            </div>
+          </div>
+
+          <div class="qty-control">
+            <button
+              type="button"
+              aria-label="減少數量"
+              data-minus-id="${escapeHtml(item.id)}"
+            >−</button>
+
+            <span class="qty-value">
+              ${item.quantity}
+            </span>
+
+            <button
+              type="button"
+              aria-label="增加數量"
+              data-plus-id="${escapeHtml(item.id)}"
+            >＋</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    /* =========================================================
+   Order 表單驗證
+========================================================= */
+
+
+    /**
+     * 顯示欄位錯誤
+     */
+    function setFieldError(input, errorElement, message) {
+
+      const field = input.closest(".customer-field");
+
+      field.classList.add("has-error");
+      field.classList.remove("is-valid");
+
+      errorElement.textContent = message;
+      errorElement.classList.add("is-visible");
+    }
+
+
+    /**
+     * 顯示欄位正確
+     */
+    function setFieldValid(input, errorElement) {
+
+      const field = input.closest(".customer-field");
+
+      field.classList.remove("has-error");
+      field.classList.add("is-valid");
+
+      errorElement.textContent = "";
+      errorElement.classList.remove("is-visible");
+    }
+
+
+    /**
+     * 清除欄位狀態
+     */
+    function clearFieldState(input, errorElement) {
+
+      const field = input.closest(".customer-field");
+
+      field.classList.remove("has-error");
+      field.classList.remove("is-valid");
+
+      errorElement.textContent = "";
+      errorElement.classList.remove("is-visible");
+    }
+
+
+    /**
+     * 驗證姓名
+     *
+     * 允許：
+     * 中文
+     * 英文字母
+     * 空白
+     *
+     * 長度：2～20 字
+     */
+    function validateCustomerName() {
+
+      const name = customerName.value.trim();
+
+      const nameRegex =
+        /^[\u4e00-\u9fffA-Za-z\s]{2,20}$/;
+
+
+      if (!name) {
+
+        setFieldError(
+          customerName,
+          customerNameError,
+          "請輸入姓名。"
+        );
+
+        return false;
+      }
+
+
+      if (!nameRegex.test(name)) {
+
+        setFieldError(
+          customerName,
+          customerNameError,
+          "姓名請輸入 2～20 個中文字或英文字母。"
+        );
+
+        return false;
+      }
+
+
+      setFieldValid(
+        customerName,
+        customerNameError
+      );
+
+      return true;
+    }
+
+
+    /**
+     * 驗證電話
+     *
+     * 允許：
+     * 0912345678
+     * 0912-345-678
+     * 0912 345 678
+     *
+     * 最後統一轉成：
+     * 0912345678
+     */
+    function validateCustomerPhone() {
+
+      const rawPhone =
+        customerPhone.value.trim();
+
+
+      if (!rawPhone) {
+
+        setFieldError(
+          customerPhone,
+          customerPhoneError,
+          "請輸入連絡電話。"
+        );
+
+        return false;
+      }
+
+
+      // 移除空白與 -
+      const phone =
+        rawPhone.replace(/[\s-]/g, "");
+
+
+      const phoneRegex =
+        /^09\d{8}$/;
+
+
+      if (!phoneRegex.test(phone)) {
+
+        setFieldError(
+          customerPhone,
+          customerPhoneError,
+          "請輸入正確的 10 碼手機號碼。"
+        );
+
+        return false;
+      }
+
+
+      // 自動整理成純數字
+      customerPhone.value = phone;
+
+
+      setFieldValid(
+        customerPhone,
+        customerPhoneError
+      );
+
+      return true;
+    }
+
+
+    /**
+     * 驗證寄送地址
+     */
+    function validateCustomerAddress() {
+
+      const address =
+        customerAddress.value.trim();
+
+
+      if (!address) {
+
+        setFieldError(
+          customerAddress,
+          customerAddressError,
+          "請輸入寄送地址。"
+        );
+
+        return false;
+      }
+
+
+      if (address.length < 6) {
+
+        setFieldError(
+          customerAddress,
+          customerAddressError,
+          "請輸入完整的寄送地址。"
+        );
+
+        return false;
+      }
+
+
+      // 不接受只有數字
+      if (/^\d+$/.test(address)) {
+
+        setFieldError(
+          customerAddress,
+          customerAddressError,
+          "請輸入有效的地址。"
+        );
+
+        return false;
+      }
+
+
+      // 不接受只有英文字母
+      if (/^[A-Za-z\s]+$/.test(address)) {
+
+        setFieldError(
+          customerAddress,
+          customerAddressError,
+          "請輸入有效的地址。"
+        );
+
+        return false;
+      }
+
+
+      setFieldValid(
+        customerAddress,
+        customerAddressError
+      );
+
+      return true;
+    }
+
+
+    /**
+     * 驗證整份 Order 表單
+     */
+    function validateOrderForm() {
+
+      const validName =
+        validateCustomerName();
+
+      const validPhone =
+        validateCustomerPhone();
+
+      const validAddress =
+        validateCustomerAddress();
+
+
+      return (
+        validName &&
+        validPhone &&
+        validAddress
+      );
+    }
+
+
+    /* =========================================================
+    POST：顧客下單
+    action = order
+ ========================================================= */
+
+    async function submitOrder() {
+
+      const items = [...cart.values()];
+
+
+      // -------------------------
+      // 先確認購物車
+      // -------------------------
+
+      if (!items.length) {
+
+        showToast(
+          "選物清單是空的",
+          "請先加入至少一件選物。"
+        );
+
+        return;
+      }
+
+
+      // -------------------------
+      // 驗證顧客資料
+      // -------------------------
+
+      if (!validateOrderForm()) {
+
+        showToast(
+          "資料尚未完成",
+          "請確認姓名、電話與寄送地址。"
+        );
+
+        return;
+      }
+
+
+      // -------------------------
+      // 取得整理後的資料
+      // -------------------------
+
+      const name =
+        customerName.value.trim();
+
+      const phone =
+        customerPhone.value.trim();
+
+      const address =
+        customerAddress.value.trim();
+
+
+      // -------------------------
+      // 建立訂單資料
+      // -------------------------
+
+      const payload = {
+
+        action: "order",
+
+        customerName: name,
+
+        phone: phone,
+
+        address: address,
+
+        items: items.map(item => ({
+
+          id: item.id,
+
+          name: item.name,
+
+          category: item.category,
+
+          price: Number(item.price),
+
+          quantity: Number(item.quantity)
+
+        })),
+
+        totalPrice: calculateTotal()
+
+      };
+
+
+      try {
+
+        showLoading();
+
+
+        // -------------------------
+        // 傳送至 Google Apps Script
+        // -------------------------
+
+        const result =
+          await postToApi(payload);
+
+
+        // -------------------------
+        // 清空訂單
+        // -------------------------
+
+        cart.clear();
+
+
+        customerName.value = "";
+
+        customerPhone.value = "";
+
+        customerAddress.value = "";
+
+
+        // 清除欄位狀態
+
+        clearFieldState(
+          customerName,
+          customerNameError
+        );
+
+        clearFieldState(
+          customerPhone,
+          customerPhoneError
+        );
+
+        clearFieldState(
+          customerAddress,
+          customerAddressError
+        );
+
+
+        // 更新購物車畫面
+
+        renderCart();
+
+
+        // -------------------------
+        // 顯示成功訊息
+        // -------------------------
+
+        const orderId =
+          result.data?.orderId ?? "已建立";
+
+
+        showToast(
+          "訂單送出",
+          `訂單 ${orderId} 已成功送出，謝謝你。`
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "訂單送出失敗：",
+          error
+        );
+
+
+        showToast(
+          "訂單送出失敗",
+          error.message ||
+          "目前無法完成訂單，請稍後再試。"
+        );
+
+
+      } finally {
+
+        hideLoading();
+
+      }
+    }
+
+
+    /* =========================================================
+       管理員模式
+    ========================================================= */
+
+    function toggleAdminMode() {
+      isAdminMode = !isAdminMode;
+
+      document.body.classList.toggle(
+        "admin-mode",
+        isAdminMode
+      );
+
+      adminPanel.classList.toggle(
+        "open",
+        isAdminMode
+      );
+
+      adminToggle.classList.toggle(
+        "active",
+        isAdminMode
+      );
+
+      adminToggle.textContent =
+        isAdminMode
+          ? "關閉管理員模式"
+          : "切換為管理員模式";
+
+      if (isAdminMode) {
+        loadOrders();
+      }
+    }
+
+
+    /* =========================================================
+       POST：新增選物
+       action = add
+    ========================================================= */
+
+    async function addProduct(event) {
+      return saveProduct(event);
+    }
+
+
+
+    /* =========================================================
+       商品編輯
+       action = update
+    ========================================================= */
+
+    function startEditProduct(id) {
+      const product = menuData.find(
+        item => String(item.id) === String(id)
+      );
+
+      if (!product) {
+        showToast("編輯失敗", "找不到這件選物。");
+        return;
+      }
+
+      editingProductId = String(product.id);
+
+      productName.value = product.name || "";
+      productCategory.value = product.category || "";
+      productPrice.value = Number(product.price) || "";
+      productImage.value = product.imageUrl || "";
+      productDescription.value = product.description || "";
+      productStatus.value = product.status || "上架";
+
+      adminForm.classList.add("is-editing");
+
+      const submitButton = adminForm.querySelector(".submit-admin");
+      if (submitButton) {
+        submitButton.textContent = "SAVE CHANGES";
+      }
+
+      let notice = document.getElementById("adminEditingNotice");
+      if (!notice) {
+        notice = document.createElement("div");
+        notice.id = "adminEditingNotice";
+        notice.className = "admin-editing";
+        adminForm.parentNode.insertBefore(notice, adminForm);
+      }
+
+      notice.textContent =
+        `EDITING / ${product.name} / NO.${product.id}`;
+
+      adminPanel.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    function cancelEditProduct() {
+      editingProductId = null;
+      adminForm.classList.remove("is-editing");
+      adminForm.reset();
+      productStatus.value = "上架";
+
+      const submitButton = adminForm.querySelector(".submit-admin");
+      if (submitButton) {
+        submitButton.textContent = "＋ 新增選物";
+      }
+
+      const notice = document.getElementById("adminEditingNotice");
+      if (notice) {
+        notice.remove();
+      }
+    }
+
+    /* =========================================================
+       POST：新增／更新選物
+    ========================================================= */
+
+    async function saveProduct(event) {
+      event.preventDefault();
+
+      const formData = new FormData(adminForm);
+
+      const payload = {
+        action: editingProductId ? "update" : "add",
+        id: editingProductId,
+        name: String(formData.get("name") || "").trim(),
+        category: String(formData.get("category") || "").trim(),
+        description: String(formData.get("description") || "").trim(),
+        price: Number(formData.get("price")),
+        imageUrl: String(formData.get("imageUrl") || "").trim(),
+        status: String(formData.get("status") || "上架")
+      };
+
+      if (
+        !payload.name ||
+        !payload.category ||
+        !payload.description ||
+        !payload.imageUrl ||
+        !Number.isFinite(payload.price) ||
+        payload.price < 0
+      ) {
+        showToast("資料不完整", "請確認名稱、分類、描述、價格與圖片路徑。");
+        return;
+      }
+
+      try {
+        showLoading();
+
+        const result = await postToApi(payload);
+
+        const wasEditing = Boolean(editingProductId);
+
+        cancelEditProduct();
+
+        showToast(
+          wasEditing ? "更新成功" : "新增成功",
+          wasEditing
+            ? `${payload.name} 的資料已更新。`
+            : `${payload.name} 已加入選物清單。`
+        );
+
+        await loadMenu();
+
+      } catch (error) {
+        console.error("POST /product 失敗：", error);
+        showToast(
+          editingProductId ? "更新失敗" : "新增失敗",
+          error.message
+        );
+
+      } finally {
+        hideLoading();
+      }
+    }
+
+    /* =========================================================
+       GET：讀取訂單
+       action = readOrders
+    ========================================================= */
+
+    async function loadOrders() {
+      if (!isAdminMode) {
+        return;
+      }
+
+      try {
+        orderList.innerHTML = `
+          <div class="empty-state">
+            正在載入訂單資料……
+          </div>
+        `;
+
+        const response = await fetch(
+          `${API_URL}?action=readOrders`,
+          {
+            method: "GET",
+            cache: "no-store"
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.status !== "success") {
+          throw new Error(result.message || "訂單資料讀取失敗");
+        }
+
+        orderData = Array.isArray(result.data)
+          ? result.data
+          : [];
+
+        renderOrders();
+
+      } catch (error) {
+        console.error("GET /readOrders 失敗：", error);
+
+        orderData = [];
+
+        orderList.innerHTML = `
+          <div class="empty-state">
+            訂單載入失敗：${escapeHtml(error.message)}
+          </div>
+        `;
+
+        orderArchiveMeta.textContent = "ERROR";
+      }
+    }
+
+    function renderOrders() {
+      orderArchiveMeta.textContent =
+        `${orderData.length} ${orderData.length === 1 ? "ORDER" : "ORDERS"}`;
+
+      if (!orderData.length) {
+        orderList.innerHTML = `
+          <div class="empty-state">
+            目前還沒有訂單。
+          </div>
+        `;
+        return;
+      }
+
+      orderList.innerHTML = `
+        <div class="order-row order-row-head">
+          <div class="order-cell">ORDER</div>
+          <div class="order-cell">CUSTOMER / ITEMS</div>
+          <div class="order-cell">TOTAL</div>
+          <div class="order-cell">TIME</div>
+          <div class="order-cell">STATUS</div>
+        </div>
+
+        ${orderData.map(order => {
+        let items = [];
+
+        try {
+          items = Array.isArray(order.items)
+            ? order.items
+            : JSON.parse(order.items || "[]");
+        } catch {
+          items = [];
+        }
+
+        const itemText = items.length
+          ? items.map(item =>
+            `${escapeHtml(item.name)} × ${Number(item.quantity) || 1}`
+          ).join("<br>")
+          : "—";
+
+        const status = String(order.status || "待處理");
+
+        return `
+            <div class="order-row">
+              <div class="order-cell order-id">
+                #${escapeHtml(order.orderId)}
+              </div>
+
+              <div class="order-cell">
+                <div>${escapeHtml(order.customerName)}</div>
+                <div class="order-items">${itemText}</div>
+              </div>
+
+              <div class="order-cell order-total">
+                NT$ ${formatPrice(order.totalPrice)}
+              </div>
+
+              <div class="order-cell order-time">
+                ${escapeHtml(order.timestamp)}
+              </div>
+
+              <div class="order-cell">
+                <select
+                  class="order-status"
+                  data-order-id="${escapeHtml(order.orderId)}"
+                  data-current-status="${escapeHtml(status)}"
+                >
+                  ${["待處理", "已確認", "準備中", "已完成", "已取消"]
+            .map(option => `
+                      <option
+                        value="${option}"
+                        ${option === status ? "selected" : ""}
+                      >${option}</option>
+                    `).join("")}
+                </select>
+              </div>
+            </div>
+          `;
+      }).join("")}
+      `;
+    }
+
+    async function updateOrderStatus(orderId, status, select) {
+      const previous = select.dataset.currentStatus || "待處理";
+
+      if (status === previous) {
+        return;
+      }
+
+      select.disabled = true;
+
+      try {
+        showLoading();
+
+        await postToApi({
+          action: "updateOrderStatus",
+          orderId,
+          status
+        });
+
+        select.dataset.currentStatus = status;
+
+        showToast(
+          "訂單已更新",
+          `#${orderId} 狀態已改為「${status}」。`
+        );
+
+      } catch (error) {
+        console.error("POST /updateOrderStatus 失敗：", error);
+
+        select.value = previous;
+
+        showToast(
+          "更新失敗",
+          error.message
+        );
+
+      } finally {
+        select.disabled = false;
+        hideLoading();
+      }
+    }
+
+    /* =========================================================
+       Modal：刪除確認
+    ========================================================= */
+
+    function openDeleteModal(id) {
+      const product = menuData.find(
+        item => String(item.id) === String(id)
+      );
+
+      if (!product) {
+        showToast("刪除失敗", "找不到這件選物。");
+        return;
+      }
+
+      pendingDeleteId = id;
+
+      modalTitle.textContent = "Delete this thing?";
+      modalText.textContent =
+        `確定要刪除「${product.name}」嗎？此動作會同步刪除 Google 試算表中的資料。`;
+
+      confirmModal.classList.add("show");
+      confirmModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeDeleteModal() {
+      pendingDeleteId = null;
+
+      confirmModal.classList.remove("show");
+      confirmModal.setAttribute("aria-hidden", "true");
+    }
+
+
+    /* =========================================================
+       POST：刪除選物
+       action = delete
+    ========================================================= */
+
+    async function deleteProduct() {
+      if (pendingDeleteId === null) {
+        return;
+      }
+
+      const id = pendingDeleteId;
+
+      try {
+        closeDeleteModal();
+        showLoading();
+
+        await postToApi({
+          action: "delete",
+          id: id
+        });
+
+        /*
+          如果被刪除的選物也在 Order 中，
+          同步從 Order 移除，避免送出不存在的選物。
+        */
+        cart.delete(String(id));
+        renderCart();
+
+        showToast(
+          "刪除成功",
+          `選物 ${id} 已從資料中移除。`
+        );
+
+        await loadMenu();
+
+      } catch (error) {
+        console.error("POST /delete 失敗：", error);
+        showToast("刪除失敗", error.message);
+
+      } finally {
+        hideLoading();
+      }
+    }
+
+
+    /* =========================================================
+       事件監聽
+    ========================================================= */
+
+    adminToggle.addEventListener(
+      "click",
+      toggleAdminMode
+    );
+
+    adminForm.addEventListener(
+      "submit",
+      saveProduct
+    );
+
+    cancelEditBtn.addEventListener(
+      "click",
+      cancelEditProduct
+    );
+
+    orderBtn.addEventListener(
+      "click",
+      submitOrder
+    );
+
+    customerName.addEventListener(
+      "input",
+      renderCart
+    );
+
+    customerPhone.addEventListener(
+      "input",
+      renderCart
+    );
+
+    customerAddress.addEventListener(
+      "input",
+      renderCart
+    );
+
+    // =========================================================
+    // Order 欄位離開後進行格式驗證
+    // =========================================================
+
+    customerName.addEventListener(
+      "blur",
+      validateCustomerName
+    );
+
+    customerPhone.addEventListener(
+      "blur",
+      validateCustomerPhone
+    );
+
+    customerAddress.addEventListener(
+      "blur",
+      validateCustomerAddress
+    );
+
+    // =========================================================
+    // 電話輸入防呆：只允許數字、空白、-
+    // =========================================================
+
+    customerPhone.addEventListener(
+      "input",
+      () => {
+
+        customerPhone.value =
+          customerPhone.value.replace(
+            /[^\d\s-]/g,
+            ""
+          );
+
+        renderCart();
+
+      }
+    );
+
+    menuGrid.addEventListener(
+      "click",
+      (event) => {
+        const addButton =
+          event.target.closest("[data-add-id]");
+
+        if (addButton) {
+          addToCart(addButton.dataset.addId);
+          return;
+        }
+
+        const editButton =
+          event.target.closest("[data-edit-id]");
+
+        if (editButton) {
+          startEditProduct(editButton.dataset.editId);
+          return;
+        }
+
+        const deleteButton =
+          event.target.closest("[data-delete-id]");
+
+        if (deleteButton) {
+          openDeleteModal(
+            deleteButton.dataset.deleteId
+          );
+        }
+      }
+    );
+
+    orderList.addEventListener(
+      "change",
+      (event) => {
+        const select =
+          event.target.closest("[data-order-id]");
+
+        if (!select) {
+          return;
+        }
+
+        updateOrderStatus(
+          select.dataset.orderId,
+          select.value,
+          select
+        );
+      }
+    );
+
+    cartItems.addEventListener(
+      "click",
+      (event) => {
+        const plus =
+          event.target.closest("[data-plus-id]");
+
+        if (plus) {
+          changeQuantity(plus.dataset.plusId, 1);
+          return;
+        }
+
+        const minus =
+          event.target.closest("[data-minus-id]");
+
+        if (minus) {
+          changeQuantity(minus.dataset.minusId, -1);
+        }
+      }
+    );
+
+    modalCancel.addEventListener(
+      "click",
+      closeDeleteModal
+    );
+
+    modalConfirm.addEventListener(
+      "click",
+      deleteProduct
+    );
+
+    confirmModal.addEventListener(
+      "click",
+      (event) => {
+        if (event.target === confirmModal) {
+          closeDeleteModal();
+        }
+      }
+    );
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "Escape") {
+          closeDeleteModal();
+          if (editingProductId) {
+            cancelEditProduct();
+          }
+        }
+      }
+    );
+
+
+
+    /* =========================================================
+       Hero：非常輕微滑鼠視差
+    ========================================================= */
+
+    const hero = $("#hero");
+
+    hero.addEventListener(
+      "mousemove",
+      (event) => {
+        const rect = hero.getBoundingClientRect();
+
+        const x =
+          (event.clientX - rect.left) / rect.width - .5;
+
+        const y =
+          (event.clientY - rect.top) / rect.height - .5;
+
+        hero.style.setProperty(
+          "--hero-x",
+          `${x * 7}px`
+        );
+
+        hero.style.setProperty(
+          "--hero-y",
+          `${y * 5}px`
+        );
+      }
+    );
+
+    hero.addEventListener(
+      "mouseleave",
+      () => {
+        hero.style.setProperty("--hero-x", "0px");
+        hero.style.setProperty("--hero-y", "0px");
+      }
+    );
+
+
+    /* =========================================================
+       啟動
+    ========================================================= */
+
+    renderCart();
+    loadMenu();
+  </script>
+
+</body>
+
+</html>
