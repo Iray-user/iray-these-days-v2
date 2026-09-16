@@ -29,10 +29,16 @@
   if (observer) $$(".reveal:not(.is-visible)").forEach(el => observer.observe(el));
 
   function lifeMarkup(item, index, archive = false) {
-    if (archive) return `<article class="archive-item reveal">
-      <div class="archive-index">${String(index + 1).padStart(2, "0")}</div>
-      <div><img src="${item.image}" width="1200" height="900" loading="lazy" alt="${item.title}"><h2>${item.title}</h2><p>${item.description}</p></div>
-      <div class="archive-side">${item.date}<br><br>${item.type}<br><br><a class="text-link" href="${item.url}">OPEN →</a></div>
+    if (archive) return `<article class="archive-item ${index === 0 ? "archive-item--feature" : "archive-item--grid"} reveal">
+      <div class="archive-image-wrap">
+        <a href="${item.url}" aria-label="Open ${item.title}"><img class="archive-image" src="${item.image}" width="1200" height="900" loading="lazy" alt="${item.title}"></a>
+      </div>
+      <div class="archive-copy">
+        <p class="archive-meta">LIFE / ${item.date} / ${item.type}</p>
+        <h2 class="archive-title">${item.title}</h2>
+        <p class="archive-description">${item.description}</p>
+        <a class="text-link archive-cta" href="${item.url}">OPEN →</a>
+      </div>
     </article>`;
     return `<article class="life-item reveal">
       <a href="${item.url}" aria-label="Open ${item.title}"><div class="life-image"><img src="${item.image}" width="1200" height="900" loading="lazy" alt="${item.title}"></div></a>
@@ -54,7 +60,11 @@
     lifePreview.querySelectorAll(".reveal").forEach(el => observer?.observe(el));
   }
   const lifeArchive = $("[data-life-archive]");
-  if (lifeArchive) { lifeArchive.innerHTML = data.life.map((x, i) => lifeMarkup(x, i, true)).join(""); lifeArchive.querySelectorAll(".reveal").forEach(el => observer?.observe(el)); }
+  if (lifeArchive) {
+    const archiveItems = data.life.map((item, index) => lifeMarkup(item, index, true));
+    lifeArchive.innerHTML = archiveItems.length ? archiveItems[0] + (archiveItems.length > 1 ? `<div class="archive-grid">${archiveItems.slice(1).join("")}</div>` : "") : "";
+    lifeArchive.querySelectorAll(".reveal").forEach(el => observer?.observe(el));
+  }
 
   // Works: one editorial showcase + category navigation
   function workShell(target, full = false) {
