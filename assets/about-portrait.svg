@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1250">
+<rect width="1000" height="1250" fill="#d8d2c7"/>
+<rect x="108" y="96" width="784" height="1058" fill="#f2eee6"/>
+<path d="M320 330 Q500 170 680 330 L724 648 Q640 776 500 796 Q360 776 276 648 Z" fill="#c3b49f"/>
+<circle cx="500" cy="426" r="112" fill="#aa9b87"/>
+<path d="M376 780 Q500 680 624 780 L702 1014 L298 1014 Z" fill="#8f8a81"/>
+<path d="M414 432 Q500 382 586 432" fill="none" stroke="#74756f" stroke-width="5"/>
+<circle cx="464" cy="466" r="5" fill="#30312f"/><circle cx="536" cy="466" r="5" fill="#30312f"/>
+<path d="M462 530 Q500 550 538 530" fill="none" stroke="#30312f" stroke-width="4"/>
+<text x="160" y="1090" font-family="Georgia,serif" font-size="30" fill="#30312f">observing / making / choosing</text>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500">
+<rect width="1200" height="1500" fill="#deddd6"/>
+<rect x="78" y="74" width="1044" height="1352" fill="#f8f7f3"/>
+<path d="M160 1110 C250 1010 355 1035 430 1100 C505 1165 600 1178 682 1108 C770 1033 860 1010 1038 1084 L1038 1338 L160 1338 Z" fill="#c9c2b5"/>
+<rect x="210" y="285" width="380" height="610" fill="#a9a59a"/>
+<rect x="252" y="330" width="296" height="528" fill="#e8e3d8"/>
+<circle cx="400" cy="566" r="92" fill="#b7a994"/>
+<path d="M335 690 Q400 615 465 690 L486 832 L314 832 Z" fill="#8f887d"/>
+<path d="M700 320 C770 258 878 274 922 356 C966 438 945 566 870 620 C795 675 700 633 674 548 C648 463 657 359 700 320 Z" fill="#d4c8b7"/>
+<path d="M714 385 Q808 330 890 398 L918 540 Q820 590 700 530 Z" fill="#b9aa96"/>
+<circle cx="103" cy="135" r="8" fill="#a9a59a"/>
+<text x="160" y="1190" font-family="Georgia,serif" font-size="34" fill="#30312f">ordinary days / collected quietly</text>
+</svg>

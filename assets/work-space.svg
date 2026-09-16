@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950">
+<rect width="1400" height="950" fill="#d9d3c8"/>
+<rect x="90" y="76" width="1220" height="800" fill="#f8f7f3"/>
+<rect x="168" y="150" width="1064" height="566" fill="#e3ded4"/>
+<rect x="250" y="244" width="230" height="472" fill="#c1b5a4"/>
+<rect x="520" y="224" width="630" height="492" fill="#eee9df"/>
+<rect x="574" y="278" width="522" height="386" fill="#d1c8bb"/>
+<circle cx="835" cy="472" r="116" fill="#a9a59a"/>
+<path d="M760 690 Q835 605 910 690" fill="none" stroke="#74756f" stroke-width="7"/>
+<text x="170" y="815" font-family="Georgia,serif" font-size="32" fill="#30312f">space as a quiet frame</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950">
+<rect width="1400" height="950" fill="#e1ddd4"/>
+<rect x="82" y="72" width="1236" height="806" fill="#30312f"/>
+<rect x="180" y="170" width="1040" height="550" fill="#b9ae9e"/>
+<circle cx="700" cy="445" r="174" fill="#e6dfd4"/>
+<path d="M655 366 L655 524 L790 445 Z" fill="#74756f"/>
+<rect x="180" y="752" width="310" height="8" fill="#d0cfc8"/>
+<rect x="180" y="780" width="180" height="8" fill="#a9a59a"/>
+<text x="1000" y="815" font-family="Arial,sans-serif" font-size="22" letter-spacing="5" fill="#efeee9">MOTION / STORY</text>
+</svg>

@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="iray,thesedays — Contact Archive">
+  <title>Contact Archive — iray,thesedays</title>
+
+  <style>
+    :root {
+      --bg: #efeee9;
+      --paper: #f8f7f3;
+      --text: #30312f;
+      --muted: #777871;
+      --line: #cfcec7;
+      --dark: #272824;
+      --white: #fff;
+      --soft: #e2e1da;
+      --cyan: #7fa7a3;
+      --violet: #9890a3;
+      --lime: #a0aa82;
+      --container: 1180px;
+      --shadow: 0 18px 45px rgba(45, 45, 42, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Helvetica Neue", "Noto Sans TC", Arial, sans-serif;
+      line-height: 1.8;
+      letter-spacing: .02em;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: .1;
+      background-image: radial-gradient(rgba(0, 0, 0, .13) .5px, transparent .5px);
+      background-size: 7px 7px;
+    }
+
+    a,
+    button,
+    input,
+    select {
+      font: inherit;
+      color: inherit
+    }
+
+    a {
+      text-decoration: none
+    }
+
+    button {
+      border: 0;
+      background: none;
+      cursor: pointer
+    }
+
+    .container {
+      width: min(calc(100% - 48px), var(--container));
+      margin: auto;
+    }
+
+    .mono,
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow,
+    .muted {
+      color: var(--muted)
+    }
+
+    /* Header */
+    .site-header {
+      position: fixed;
+      z-index: 50;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 24px 0;
+      background: rgba(244, 243, 240, .86);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(216, 215, 210, .65);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(calc(100% - 48px), var(--container));
+      margin: auto;
+    }
+
+    .brand {
+      font: 20px Georgia, "Times New Roman", serif;
+      letter-spacing: -.02em;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 34px
+    }
+
+    .main-nav a {
+      position: relative;
+      font-size: 10px;
+      letter-spacing: .16em;
+    }
+
+    .main-nav a::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: -6px;
+      left: 0;
+      height: 1px;
+      background: var(--text);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform .3s ease;
+    }
+
+    .main-nav a:hover::after,
+    .main-nav a.is-active::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    .header-back {
+      font-size: 10px;
+      letter-spacing: .14em;
+    }
+
+    /* Page */
+    .page {
+      padding: 150px 0 100px
+    }
+
+    .archive-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .archive-top .right {
+      color: var(--muted)
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 600px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 60px;
+      padding: 70px 0 90px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-main {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hero-title {
+      max-width: 900px;
+      margin-top: 58px;
+      font: 400 clamp(68px, 10vw, 128px)/.86 Georgia, "Times New Roman", serif;
+      letter-spacing: -.065em;
+      cursor: default;
+      transition:
+        transform .55s cubic-bezier(.2, .7, .2, 1),
+        letter-spacing .55s;
+    }
+
+    .hero-title span {
+      display: block;
+      margin-left: 12vw;
+      transition: transform .55s ease;
+    }
+
+    .hero-title:hover {
+      transform: translateY(-6px);
+      letter-spacing: -.055em;
+    }
+
+    .hero-title:hover span {
+      transform: translateX(8px)
+    }
+
+    .hero-description {
+      max-width: 430px;
+      margin: 52px 0 0 12vw;
+      color: var(--muted);
+      font-size: 14px;
+      transition: transform .45s ease;
+    }
+
+    .hero-description:hover {
+      transform: translateX(6px)
+    }
+
+    .hero-side {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+
+    .hero-orbit {
+      width: 270px;
+      height: 270px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      position: relative;
+      transform: translate(var(--mx, 0), var(--my, 0));
+      transition: transform .2s ease-out;
+    }
+
+    .hero-orbit::before,
+    .hero-orbit::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      inset: 28px;
+      border: 1px solid rgba(48, 49, 47, .14);
+    }
+
+    .hero-orbit::after {
+      inset: 76px;
+      border-color: rgba(48, 49, 47, .2);
+    }
+
+    .orbit-dot {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      right: 31px;
+      top: 55px;
+      background: var(--text);
+      box-shadow: 0 0 14px rgba(48, 49, 47, .25);
+    }
+
+    .hero-note {
+      position: absolute;
+      right: 0;
+      bottom: 8px;
+      width: 220px;
+      padding: 18px;
+      background: rgba(248, 247, 243, .92);
+      box-shadow: var(--shadow);
+      font: 16px/1.55 Georgia, "Times New Roman", serif;
+      animation: floatNote 12s ease-in-out infinite;
+    }
+
+    .hero-number {
+      position: absolute;
+      right: 0;
+      bottom: -42px;
+      color: var(--muted);
+    }
+
+    @keyframes floatNote {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0)
+      }
+
+      50% {
+        transform: translateY(-6px) rotate(.4deg)
+      }
+    }
+
+    /* Section */
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-heading h2 {
+      font: 400 28px Georgia, "Times New Roman", serif;
+    }
+
+    .section-heading span {
+      color: var(--muted)
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: .72fr 1.6fr;
+      gap: 50px;
+      padding-top: 55px;
+    }
+
+    /* Cards */
+    .editorial-card {
+      background: rgba(248, 247, 243, .55);
+      border: 1px solid rgba(255, 255, 255, .65);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      transition: box-shadow .45s ease;
+    }
+
+    .editorial-card:hover {
+      box-shadow: 0 24px 60px rgba(45, 45, 42, .1);
+    }
+
+    .form-card {
+      padding: 30px;
+      animation: floatCard 9s ease-in-out infinite;
+    }
+
+    .database-card {
+      padding: 30px;
+      animation: floatCard 11s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    @keyframes floatCard {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-5px)
+      }
+    }
+
+    .form-index,
+    .database-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .form-index,
+    .database-meta {
+      color: var(--muted)
+    }
+
+    .form-card h3 {
+      margin: 30px 0 35px;
+      font: 400 40px/1 Georgia, "Times New Roman", serif;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 25px
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: transform .35s, color .35s;
+    }
+
+    .form-group:focus-within label {
+      transform: translateY(-3px);
+      color: var(--text);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      height: 48px;
+      padding: 0 2px;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      outline: none;
+      border-radius: 0;
+      transition: transform .35s, border-color .35s, background .35s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      transform: translateY(-2px);
+      border-bottom-color: var(--text);
+      background: linear-gradient(to top, rgba(255, 255, 255, .24), transparent 45%);
+    }
+
+    .form-group input::placeholder {
+      color: #aaa9a3
+    }
+
+    .submit-btn {
+      position: relative;
+      width: 100%;
+      min-height: 52px;
+      margin-top: 15px;
+      padding: 0 20px;
+      color: var(--white);
+      background: var(--dark);
+      border: 1px solid var(--dark);
+      font-size: 10px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      transition: background .35s, color .35s, transform .35s, box-shadow .35s;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      color: var(--dark);
+      background: transparent;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 22px rgba(45, 45, 42, .08);
+    }
+
+    .submit-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    /* Table */
+    .database-title {
+      font: 400 38px Georgia, "Times New Roman", serif;
+    }
+
+    .database-header {
+      align-items: flex-start
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 15px 10px;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-align: left;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--line);
+    }
+
+    td {
+      padding: 21px 10px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(17, 17, 17, .08);
+      transition: background .35s, padding .35s;
+    }
+
+    tbody tr {
+      transition: transform .35s ease, background .35s ease;
+    }
+
+    tbody tr:hover {
+      transform: translateX(5px)
+    }
+
+    tbody tr:hover td {
+      background: rgba(255, 255, 255, .28)
+    }
+
+    td:first-child {
+      width: 55px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .action-cell {
+      width: 85px;
+      text-align: left;
+    }
+
+    /* Inquiry badges */
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      font-size: 9px;
+      transition: transform .3s, box-shadow .3s, background .3s;
+    }
+
+    .badge:hover {
+      transform: translateY(-3px) rotate(-1deg);
+    }
+
+    .badge-general {
+      color: #485451;
+      background: rgba(127, 167, 163, .1);
+      border-color: rgba(127, 167, 163, .48);
+      box-shadow: 0 0 13px rgba(127, 167, 163, .15);
+    }
+
+    .badge-collaboration {
+      color: #595362;
+      background: rgba(152, 144, 163, .1);
+      border-color: rgba(152, 144, 163, .45);
+      box-shadow: 0 0 13px rgba(152, 144, 163, .13);
+    }
+
+    .badge-project {
+      color: #697253;
+      background: rgba(160, 170, 130, .1);
+      border-color: rgba(160, 170, 130, .45);
+      box-shadow: 0 0 13px rgba(160, 170, 130, .12);
+    }
+
+    .badge-other {
+      color: #5f605b;
+      background: rgba(100, 100, 95, .07);
+    }
+
+    /* Role/inquiry selector */
+    .type-control {
+      position: relative;
+      display: inline-block;
+      transition: transform .35s;
+    }
+
+    .type-control:hover {
+      transform: translateY(-2px)
+    }
+
+    .type-select {
+      appearance: none;
+      -webkit-appearance: none;
+      min-width: 108px;
+      height: 30px;
+      padding: 0 24px 0 9px;
+      background: rgba(255, 255, 255, .28);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      outline: none;
+      cursor: pointer;
+      font-size: 9px;
+      transition: .3s;
+    }
+
+    .type-select:hover,
+    .type-select:focus {
+      background: rgba(255, 255, 255, .58);
+      border-color: var(--text);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, .06);
+    }
+
+    .type-arrow {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      pointer-events: none;
+      color: var(--muted);
+      transform: translateY(-50%);
+      transition: .3s;
+    }
+
+    .type-control:hover .type-arrow {
+      transform: translateY(-50%) rotate(90deg);
+    }
+
+    /* Delete */
+    .delete-btn {
+      position: relative;
+      padding: 5px 0;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: transform .3s, color .3s;
+    }
+
+    .delete-btn::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 2px;
+      width: 0;
+      height: 1px;
+      background: var(--text);
+      transition: width .35s ease;
+    }
+
+    .delete-btn:hover {
+      color: var(--text);
+      transform: translateY(-2px);
+    }
+
+    .delete-btn:hover::after {
+      width: 100%
+    }
+
+    /* Loading */
+    .loading {
+      min-height: 330px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .loader {
+      width: 35px;
+      height: 35px;
+      border: 1px solid var(--line);
+      border-top-color: var(--text);
+      border-right-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      box-shadow: 0 0 16px rgba(127, 167, 163, .18);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .loading span {
+      color: var(--muted)
+    }
+
+    .empty {
+      padding: 80px 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-icon {
+      margin-bottom: 15px;
+      font: 40px Georgia, "Times New Roman", serif;
+    }
+
+    /* Delete Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(38, 39, 36, .42);
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .3s, visibility .3s;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      width: min(480px, 100%);
+      padding: 34px;
+      background: rgba(248, 247, 243, .96);
+      border: 1px solid rgba(255, 255, 255, .75);
+      box-shadow: 0 25px 70px rgba(45, 45, 42, .18);
+      transform: translateY(24px);
+      transition: transform .45s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .modal-backdrop.open .modal {
+      transform: translateY(0)
+    }
+
+    .modal-kicker {
+      color: var(--muted)
+    }
+
+    .modal h2 {
+      margin: 25px 0 12px;
+      font: 400 38px Georgia, "Times New Roman", serif;
+    }
+
+    .modal-contact {
+      padding: 15px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .modal-warning {
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .modal-btn {
+      min-width: 105px;
+      height: 43px;
+      padding: 0 15px;
+      background: transparent;
+      border: 1px solid var(--line);
+      font-size: 10px;
+      transition: .3s;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-2px)
+    }
+
+    .modal-confirm {
+      color: var(--white);
+      background: var(--dark);
+      border-color: var(--dark);
+    }
+
+    .modal-confirm:hover {
+      color: var(--dark);
+      background: transparent;
+    }
+
+    .modal-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 90px;
+      right: 25px;
+      width: min(380px, calc(100% - 40px));
+      z-index: 9999;
+    }
+
+    .toast {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 15px;
+      align-items: start;
+      padding: 18px;
+      margin-bottom: 10px;
+      background: rgba(248, 247, 243, .94);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      box-shadow: 0 15px 40px rgba(45, 45, 42, .12);
+      animation: toastIn .45s cubic-bezier(.2, .7, .2, 1) forwards;
+    }
+
+    .toast.success {
+      border-left: 3px solid var(--cyan)
+    }
+
+    .toast.error {
+      border-left: 3px solid var(--text)
+    }
+
+    .toast-icon {
+      font-size: 13px
+    }
+
+    .toast-title {
+      margin-bottom: 4px;
+      font: 15px Georgia, "Times New Roman", serif;
+    }
+
+    .toast-message {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .toast-close {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+        transform: translateY(0)
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-12px)
+      }
+    }
+
+    /* Footer */
+    .site-footer {
+      padding: 30px 0;
+      border-top: 1px solid var(--line);
+      margin-top: 90px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .footer-brand {
+      color: var(--text);
+      font: 14px Georgia, "Times New Roman", serif;
+    }
+
+    /* Responsive */
+    @media(max-width:1000px) {
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .hero-side {
+        min-height: 300px;
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+
+    @media(max-width:700px) {
+
+      .container,
+      .header-inner {
+        width: 90%
+      }
+
+      .main-nav {
+        display: none
+      }
+
+      .page {
+        padding-top: 125px
+      }
+
+      .hero {
+        padding: 50px 0 70px
+      }
+
+      .hero-title {
+        font-size: clamp(64px, 19vw, 105px);
+      }
+
+      .hero-title span {
+        margin-left: 15vw
+      }
+
+      .hero-description {
+        margin-left: 0
+      }
+
+      .hero-orbit {
+        width: 210px;
+        height: 210px;
+      }
+
+      .hero-note {
+        right: 0
+      }
+
+      .form-card,
+      .database-card {
+        padding: 22px
+      }
+
+      .database-title {
+        font-size: 30px
+      }
+
+      .modal-actions {
+        flex-direction: column-reverse;
+      }
+
+      .modal-btn {
+        width: 100%
+      }
+
+      .footer-inner {
+        flex-direction: column
+      }
+
+      /* =====================================================
+   MOBILE DIRECTORY
+   手機版改為 Editorial 資料卡
+===================================================== */
+
+      .table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      table {
+        width: 100%;
+        min-width: 0;
+        border-collapse: collapse;
+      }
+
+      table thead {
+        display: none;
+      }
+
+      table tbody {
+        display: block;
+        width: 100%;
+      }
+
+      table tr {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        column-gap: 16px;
+
+        width: 100%;
+
+        padding: 22px 0;
+
+        border-bottom: 1px solid var(--line);
+      }
+
+      table td {
+        border: 0;
+
+        padding: 5px 0;
+
+        min-width: 0;
+
+        font-size: 13px;
+
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      /* No. */
+      table td:nth-child(1) {
+        grid-column: 1;
+        grid-row: 1 / span 4;
+
+        padding-top: 8px;
+
+        font-family: "Courier New", monospace;
+        font-size: 10px;
+        color: var(--muted);
+      }
+
+      /* Name */
+      table td:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1;
+
+        font-size: 14px;
+      }
+
+      /* Email */
+      table td:nth-child(3) {
+        grid-column: 2;
+        grid-row: 2;
+
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      /* Inquiry Type */
+      table td:nth-child(4) {
+        grid-column: 2;
+        grid-row: 3;
+
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        flex-wrap: wrap;
+      }
+
+      /* Action */
+      table td:nth-child(5) {
+        grid-column: 2;
+        grid-row: 4;
+
+        padding-top: 12px;
+      }
+
+      /* Select 不要被壓縮 */
+      table td select {
+        width: auto;
+        max-width: 100%;
+        min-width: 110px;
+
+        box-sizing: border-box;
+      }
+
+      /* Delete */
+      table .delete-btn {
+        display: inline-block;
+
+        padding: 5px 0;
+
+        font-size: 9px;
+        letter-spacing: .12em;
+      }
+
+
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">iray,thesedays</a>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html#about">ABOUT</a>
+        <a href="index.html#life">LIFE</a>
+        <a href="index.html#works">WORKS</a>
+        <a href="index.html#things">THINGS I LOVE</a>
+        <a href="contacts.html" class="is-active">CONTACT</a>
+      </nav>
+
+      <a class="header-back" href="index.html">BACK ↗</a>
+    </div>
+  </header>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Delete confirmation -->
+  <div id="deleteModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+
+      <div class="modal-kicker mono">ACTION / DELETE</div>
+
+      <h2 id="deleteTitle">Delete?</h2>
+
+      <div id="deleteContactInfo" class="modal-contact"></div>
+
+      <p class="modal-warning">
+        此操作會同步刪除 Google 試算表中的聯絡資料，且無法復原。
+        請確認是否要繼續。
+      </p>
+
+      <div class="modal-actions">
+        <button id="cancelDeleteBtn" class="modal-btn" type="button">
+          Cancel
+        </button>
+
+        <button id="confirmDeleteBtn" class="modal-btn modal-confirm" type="button">
+          Confirm Delete
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <main class="page">
+
+    <div class="container">
+
+      <div class="archive-top mono">
+        <div>CONTACT / 01</div>
+        <div>EDITORIAL ARCHIVE</div>
+        <div class="right">2026</div>
+      </div>
+
+      <!-- Hero -->
+      <section class="hero" id="hero">
+
+        <div class="hero-main">
+          <div>
+
+            <p class="eyebrow">
+              Issue No. 01 — Contact
+            </p>
+
+            <h1 class="hero-title" id="heroTitle">
+              Contact
+              <span>Archive.</span>
+            </h1>
+
+            <p class="hero-description" id="heroDescription">
+              如果你有任何想法、合作提案或專案，
+              歡迎留下聯絡資訊。
+              讓一段新的對話，從這裡開始。
+            </p>
+
+          </div>
+        </div>
+
+        <div class="hero-side">
+
+          <div class="hero-orbit" id="heroOrbit" aria-hidden="true">
+            <span class="orbit-dot"></span>
+          </div>
+
+          <div class="hero-note">
+            A place for<br>
+            conversations,<br>
+            ideas &amp; collaborations.
+          </div>
+
+          <div class="hero-number mono">
+            01 / 02 / 03
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- Directory title -->
+      <div class="section-heading">
+
+        <h2>Contact Archive</h2>
+
+        <span class="mono">
+          CONTACTS / LIVE
+        </span>
+
+      </div>
+
+      <section class="content-grid">
+
+        <!-- Form -->
+        <article class="editorial-card form-card">
+
+          <div class="form-index mono">
+            <span>FORM / 001</span>
+            <span>NEW INQUIRY</span>
+          </div>
+
+          <h3>
+            Let's talk.
+          </h3>
+
+          <form id="contactForm">
+
+            <div class="form-group">
+              <label for="name">Name / 姓名</label>
+              <input id="name" name="name" type="text" placeholder="您的姓名" autocomplete="name" required>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email / 電子郵件</label>
+              <input id="email" name="email" type="email" placeholder="email@example.com" autocomplete="email" required>
+            </div>
+
+            <div class="form-group">
+              <label for="inquiryType">
+                Inquiry Type / 聯絡類型
+              </label>
+
+              <select id="inquiryType" name="inquiryType" required>
+                <option value="">請選擇聯絡類型</option>
+                <option value="一般詢問">一般詢問</option>
+                <option value="合作提案">合作提案</option>
+                <option value="專案合作">專案合作</option>
+                <option value="其他">其他</option>
+              </select>
+            </div>
+
+            <button id="submitBtn" class="submit-btn" type="submit">
+              <span id="submitText">Submit Inquiry</span>
+            </button>
+
+          </form>
+
+        </article>
+
+        <!-- Contact Archive -->
+        <article class="editorial-card database-card">
+
+          <div class="database-header">
+
+            <div class="database-title">
+              Directory
+            </div>
+
+            <div id="contactCount" class="database-meta mono">
+              0 CONTACTS
+            </div>
+
+          </div>
+
+          <div id="tableContent" class="table-wrapper"></div>
+
+        </article>
+
+      </section>
+
+      <footer class="site-footer">
+
+        <div class="footer-inner">
+
+          <div class="footer-brand">
+            iray,thesedays
+          </div>
+
+          <div>
+            生活、設計與那些值得留下的小事。
+          </div>
+
+          <a href="index.html" class="mono">
+            RETURN HOME ↗
+          </a>
+
+        </div>
+
+      </footer>
+
+    </div>
+
+  </main>
+
+  <script>
+    /*
+    =========================================================
+    API URL
+    =========================================================
+    請將下面的空字串換成你的 Google Apps Script Web App URL。
+    
+    例如：
+    const API_URL = "https://script.google.com/macros/s/xxxxxxxx/exec";
+    
+    注意：
+    本頁仍沿用原本 API 的資料結構：
+    name / email / role
+    
+    其中：
+    role 在這一頁的介面上會顯示為 Inquiry Type / 聯絡類型。
+    
+    因此不需要為前端另外創造一套完全不同的 API 格式。
+    =========================================================
+    */
+    const API_URL = "https://script.google.com/macros/s/AKfycbzbxIqI_CV7IkzY4-pCz_-yeCN2wznMbR6lOuvTGcN0GqgpdXGqfrdkj3evxF1UJqp8/exec";
+
+    /* DOM */
+    const contactForm = document.getElementById("contactForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const submitText = document.getElementById("submitText");
+    const tableContent = document.getElementById("tableContent");
+    const contactCount = document.getElementById("contactCount");
+
+    const toastContainer = document.getElementById("toastContainer");
+
+    const deleteModal = document.getElementById("deleteModal");
+    const deleteContactInfo = document.getElementById("deleteContactInfo");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+
+    const heroOrbit = document.getElementById("heroOrbit");
+
+    let pendingDeleteContact = null;
+
+
+    /* =====================================================
+       API URL 防呆
+    ===================================================== */
+    function checkApiUrl() {
+
+      if (!API_URL) {
+
+        showToast(
+          "error",
+          "API URL 未設定",
+          "請先填入 Google Apps Script Web App URL。"
+        );
+
+        return false;
+      }
+
+      return true;
+    }
+
+
+    /* =====================================================
+       HTML Escape
+    ===================================================== */
+    function escapeHTML(value) {
+
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+
+    /* =====================================================
+       Loading
+    ===================================================== */
+    function showLoading() {
+
+      tableContent.innerHTML = `
+    <div class="loading">
+
+      <div class="loader"></div>
+
+      <span class="mono">
+        CONNECTING TO ARCHIVE...
+      </span>
+
+    </div>
+  `;
+    }
+
+
+    /* =====================================================
+       Inquiry Badge
+    ===================================================== */
+    function getInquiryBadge(type) {
+
+      const safeType =
+        String(type ?? "").trim() || "一般詢問";
+
+      let className = "badge-other";
+
+      if (safeType === "一般詢問") {
+        className = "badge-general";
+      }
+
+      if (safeType === "合作提案") {
+        className = "badge-collaboration";
+      }
+
+      if (safeType === "專案合作") {
+        className = "badge-project";
+      }
+
+      return `
+    <span
+      class="badge ${className}"
+      title="${escapeHTML(safeType)}"
+    >
+      ${escapeHTML(safeType)}
+    </span>
+  `;
+    }
+
+
+    /* =====================================================
+       Inquiry Type Selector
+       注意：後端仍使用 role 欄位。
+    ===================================================== */
+    function getInquirySelect(type, contact) {
+
+      const safeType =
+        String(type ?? "").trim() || "一般詢問";
+
+      const memberData =
+        encodeURIComponent(
+          JSON.stringify({
+            id: contact.id ?? null,
+            name: contact.name ?? "",
+            email: contact.email ?? "",
+            role: safeType
+          })
+        );
+
+      const types = [
+        "一般詢問",
+        "合作提案",
+        "專案合作",
+        "其他"
+      ];
+
+      return `
+    <div class="type-control">
+
+      <select
+        class="type-select"
+        data-contact="${memberData}"
+        aria-label="Change inquiry type for ${escapeHTML(contact.name)}"
+      >
+
+        ${types.map(item => `
+          <option
+            value="${escapeHTML(item)}"
+            ${item === safeType ? "selected" : ""}
+          >
+            ${escapeHTML(item)}
+          </option>
+        `).join("")}
+
+      </select>
+
+      <span class="type-arrow">
+        ↕
+      </span>
+
+    </div>
+  `;
+    }
+
+
+    /* =====================================================
+       Render Contacts
+    ===================================================== */
+    function renderContacts(contacts) {
+
+      if (!Array.isArray(contacts)) {
+        throw new Error(
+          "API 回傳格式錯誤：data 不是陣列。"
+        );
+      }
+
+      contactCount.textContent =
+        `${contacts.length} CONTACTS`;
+
+      if (contacts.length === 0) {
+
+        tableContent.innerHTML = `
+      <div class="empty">
+
+        <div class="empty-icon">
+          ∅
+        </div>
+
+        <p class="mono">
+          NO CONTACTS FOUND.
+        </p>
+
+      </div>
+    `;
+
+        return;
+      }
+
+
+      const rows = contacts.map((contact, index) => {
+
+        const dataContact =
+          encodeURIComponent(
+            JSON.stringify({
+              id: contact.id ?? null,
+              name: contact.name ?? "",
+              email: contact.email ?? "",
+              role: contact.role ?? ""
+            })
+          );
+
+        return `
+      <tr>
+
+        <td>
+          ${String(index + 1).padStart(2, "0")}
+        </td>
+
+        <td>
+          ${escapeHTML(contact.name)}
+        </td>
+
+        <td>
+          ${escapeHTML(contact.email)}
+        </td>
+
+        <td>
+          ${getInquiryBadge(contact.role)}
+          ${getInquirySelect(contact.role, contact)}
+        </td>
+
+        <td class="action-cell">
+
+          <button
+            class="delete-btn"
+            type="button"
+            data-contact="${dataContact}"
+            aria-label="Delete ${escapeHTML(contact.name)}"
+          >
+            Delete
+          </button>
+
+        </td>
+
+      </tr>
+    `;
+      }).join("");
+
+
+      tableContent.innerHTML = `
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>No.</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Inquiry Type</th>
+          <th>Action</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+        ${rows}
+      </tbody>
+
+    </table>
+  `;
+
+
+      /* Delete */
+      tableContent
+        .querySelectorAll(".delete-btn")
+        .forEach(button => {
+
+          button.addEventListener("click", () => {
+
+            try {
+
+              pendingDeleteContact =
+                JSON.parse(
+                  decodeURIComponent(
+                    button.dataset.contact
+                  )
+                );
+
+              openDeleteModal(
+                pendingDeleteContact
+              );
+
+            } catch (error) {
+
+              console.error(
+                "Delete contact parse error:",
+                error
+              );
+
+              showToast(
+                "error",
+                "刪除失敗",
+                "無法取得這筆聯絡資料。"
+              );
+            }
+
+          });
+
+        });
+
+
+      /* Change inquiry type */
+      tableContent
+        .querySelectorAll(".type-select")
+        .forEach(select => {
+
+          select.addEventListener(
+            "change",
+            async () => {
+
+              let contact;
+
+              try {
+
+                contact =
+                  JSON.parse(
+                    decodeURIComponent(
+                      select.dataset.contact
+                    )
+                  );
+
+              } catch (error) {
+
+                showToast(
+                  "error",
+                  "更新失敗",
+                  "無法取得這筆聯絡資料。"
+                );
+
+                return;
+              }
+
+
+              const previousType = contact.role;
+              const newType = select.value;
+
+              if (newType === previousType) {
+                return;
+              }
+
+              if (!checkApiUrl()) {
+
+                select.value = previousType;
+
+                return;
+              }
+
+
+              select.disabled = true;
+
+
+              try {
+
+                /*
+                 * 保留原本 Google Apps Script API：
+                 * action = updateRole
+                 * role = 聯絡類型
+                 */
+                const response =
+                  await fetch(API_URL, {
+
+                    method: "POST",
+
+                    headers: {
+                      "Content-Type": "text/plain"
+                    },
+
+                    body: JSON.stringify({
+
+                      action: "updateRole",
+
+                      id: contact.id ?? null,
+
+                      email: contact.email ?? "",
+
+                      role: newType
+
+                    })
+
+                  });
+
+
+                if (!response.ok) {
+                  throw new Error(
+                    `HTTP ${response.status}`
+                  );
+                }
+
+
+                const result =
+                  await response.json();
+
+
+                if (
+                  !result ||
+                  result.status !== "success"
+                ) {
+
+                  throw new Error(
+                    result?.message ||
+                    "聯絡類型更新失敗。"
+                  );
+                }
+
+
+                showToast(
+                  "success",
+                  "Inquiry Updated",
+                  `${contact.name} 已更新聯絡類型。`
+                );
+
+
+                await fetchContacts();
+
+
+              } catch (error) {
+
+                console.error(
+                  "POST updateRole error:",
+                  error
+                );
+
+                select.value = previousType;
+
+                showToast(
+                  "error",
+                  "更新失敗",
+                  error.message
+                );
+
+              } finally {
+
+                select.disabled = false;
+
+              }
+
+            }
+          );
+
+        });
+
+    }
+
+
+    /* =====================================================
+       GET：讀取聯絡資料
+    ===================================================== */
+    async function fetchContacts() {
+
+      if (!checkApiUrl()) {
+        return;
+      }
+
+      showLoading();
+
+
+      try {
+
+        const response =
+          await fetch(
+            `${API_URL}?action=read`,
+            {
+              method: "GET"
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            `HTTP ${response.status}`
+          );
+        }
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          !result ||
+          result.status !== "success"
+        ) {
+
+          throw new Error(
+            result?.message ||
+            "聯絡資料讀取失敗。"
+          );
+        }
+
+
+        renderContacts(
+          result.data
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "GET / fetchContacts error:",
+          error
+        );
+
+        contactCount.textContent = "ERROR";
+
+
+        tableContent.innerHTML = `
+      <div class="empty">
+
+        <div class="empty-icon">
+          !
+        </div>
+
+        <p class="mono">
+          UNABLE TO LOAD ARCHIVE.
+        </p>
+
+      </div>
+    `;
+
+
+        showToast(
+          "error",
+          "讀取失敗",
+          error.message
+        );
+      }
+    }
+
+
+    /* =====================================================
+       Submit Loading
+    ===================================================== */
+    function setSubmitLoading(isLoading) {
+
+      submitBtn.disabled = isLoading;
+
+      submitText.textContent =
+        isLoading
+          ? "Sending..."
+          : "Submit Inquiry";
+    }
+
+
+    /* =====================================================
+       POST：新增聯絡資料
+    ===================================================== */
+    contactForm.addEventListener(
+      "submit",
+      async event => {
+
+        event.preventDefault();
+
+
+        if (
+          !checkApiUrl() ||
+          submitBtn.disabled
+        ) {
+
+          return;
+        }
+
+
+        const formData =
+          new FormData(contactForm);
+
+
+        const name =
+          String(
+            formData.get("name") || ""
+          ).trim();
+
+
+        const email =
+          String(
+            formData.get("email") || ""
+          ).trim();
+
+
+        const inquiryType =
+          String(
+            formData.get("inquiryType") || ""
+          ).trim();
+
+
+        if (
+          !name ||
+          !email ||
+          !inquiryType
+        ) {
+
+          showToast(
+            "error",
+            "資料不完整",
+            "請完成所有欄位。"
+          );
+
+          return;
+        }
+
+
+        if (
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            .test(email)
+        ) {
+
+          showToast(
+            "error",
+            "Email 格式錯誤",
+            "請輸入正確的 Email。"
+          );
+
+          return;
+        }
+
+
+        /*
+         * 重要：
+         * 後端原本使用 role 欄位。
+         * 這裡把 inquiryType 放入 role，
+         * 因此不需要改變原本 Apps Script 的資料結構。
+         */
+        const payload = {
+
+          name: name,
+
+          email: email,
+
+          role: inquiryType
+
+        };
+
+
+        setSubmitLoading(true);
+
+
+        try {
+
+          const response =
+            await fetch(
+              API_URL,
+              {
+
+                method: "POST",
+
+                headers: {
+                  "Content-Type": "text/plain"
+                },
+
+                body: JSON.stringify(payload)
+
+              }
+            );
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              `HTTP ${response.status}`
+            );
+          }
+
+
+          const result =
+            await response.json();
+
+
+          if (
+            !result ||
+            result.status !== "success"
+          ) {
+
+            throw new Error(
+              result?.message ||
+              "聯絡資料新增失敗。"
+            );
+          }
+
+
+          showToast(
+            "success",
+            "Inquiry Received",
+            "你的聯絡資訊已成功送出。"
+          );
+
+
+          contactForm.reset();
+
+
+          await fetchContacts();
+
+
+        } catch (error) {
+
+          console.error(
+            "POST create error:",
+            error
+          );
+
+          showToast(
+            "error",
+            "送出失敗",
+            error.message
+          );
+
+        } finally {
+
+          setSubmitLoading(false);
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       Delete Modal
+    ===================================================== */
+    function openDeleteModal(contact) {
+
+      const name =
+        contact?.name ||
+        "Unknown contact";
+
+      const email =
+        contact?.email ||
+        "";
+
+      const type =
+        contact?.role ||
+        "一般詢問";
+
+
+      deleteContactInfo.innerHTML = `
+    <strong>
+      ${escapeHTML(name)}
+    </strong>
+    <br>
+
+    ${escapeHTML(email)}
+
+    <br>
+
+    <span class="muted">
+      ${escapeHTML(type)}
+    </span>
+  `;
+
+
+      confirmDeleteBtn.disabled = false;
+
+      confirmDeleteBtn.textContent =
+        "Confirm Delete";
+
+
+      deleteModal.classList.add("open");
+
+      deleteModal.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+    }
+
+
+    function closeDeleteModal() {
+
+      deleteModal.classList.remove("open");
+
+      deleteModal.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      pendingDeleteContact = null;
+
+    }
+
+
+    cancelDeleteBtn.addEventListener(
+      "click",
+      closeDeleteModal
+    );
+
+
+    deleteModal.addEventListener(
+      "click",
+      event => {
+
+        if (event.target === deleteModal) {
+
+          closeDeleteModal();
+
+        }
+
+      }
+    );
+
+
+    document.addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key === "Escape" &&
+          deleteModal.classList.contains("open")
+        ) {
+
+          closeDeleteModal();
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       POST：Delete
+    ===================================================== */
+    confirmDeleteBtn.addEventListener(
+      "click",
+      async () => {
+
+        if (
+          !pendingDeleteContact ||
+          confirmDeleteBtn.disabled
+        ) {
+
+          return;
+        }
+
+
+        if (!checkApiUrl()) {
+          return;
+        }
+
+
+        confirmDeleteBtn.disabled = true;
+
+        confirmDeleteBtn.textContent =
+          "Deleting...";
+
+
+        /*
+         * 保留原本 Delete API：
+         * action = delete
+         */
+        const payload = {
+
+          action: "delete",
+
+          id:
+            pendingDeleteContact.id ??
+            null,
+
+          email:
+            pendingDeleteContact.email ??
+            ""
+
+        };
+
+
+        try {
+
+          const response =
+            await fetch(
+              API_URL,
+              {
+
+                method: "POST",
+
+                headers: {
+                  "Content-Type": "text/plain"
+                },
+
+                body: JSON.stringify(payload)
+
+              }
+            );
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              `HTTP ${response.status}`
+            );
+          }
+
+
+          const result =
+            await response.json();
+
+
+          if (
+            !result ||
+            result.status !== "success"
+          ) {
+
+            throw new Error(
+              result?.message ||
+              "聯絡資料刪除失敗。"
+            );
+          }
+
+
+          closeDeleteModal();
+
+
+          showToast(
+            "success",
+            "Entry Deleted",
+            "聯絡資料已同步從 Archive 與 Google 試算表刪除。"
+          );
+
+
+          await fetchContacts();
+
+
+        } catch (error) {
+
+          console.error(
+            "POST delete error:",
+            error
+          );
+
+          confirmDeleteBtn.disabled = false;
+
+          confirmDeleteBtn.textContent =
+            "Confirm Delete";
+
+
+          showToast(
+            "error",
+            "刪除失敗",
+            error.message
+          );
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       Toast
+    ===================================================== */
+    function showToast(
+      type,
+      title,
+      message
+    ) {
+
+      const toast =
+        document.createElement("div");
+
+
+      toast.className =
+        `toast ${type}`;
+
+
+      toast.innerHTML = `
+
+    <div class="toast-icon">
+      ${type === "success" ? "✓" : "!"}
+    </div>
+
+    <div>
+
+      <div class="toast-title">
+        ${escapeHTML(title)}
+      </div>
+
+      <div class="toast-message">
+        ${escapeHTML(message)}
+      </div>
+
+    </div>
+
+    <button
+      class="toast-close"
+      type="button"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+  `;
+
+
+      toastContainer.appendChild(
+        toast
+      );
+
+
+      const closeBtn =
+        toast.querySelector(
+          ".toast-close"
+        );
+
+
+      closeBtn.addEventListener(
+        "click",
+        () => removeToast(toast)
+      );
+
+
+      setTimeout(
+        () => removeToast(toast),
+        4500
+      );
+
+    }
+
+
+    function removeToast(toast) {
+
+      if (
+        !toast ||
+        !toast.isConnected
+      ) {
+
+        return;
+      }
+
+
+      toast.style.animation =
+        "toastOut .3s ease forwards";
+
+
+      setTimeout(
+        () => toast.remove(),
+        300
+      );
+
+    }
+
+
+    /* =====================================================
+       Hero：非常輕微視差
+    ===================================================== */
+    document.addEventListener(
+      "mousemove",
+      event => {
+
+        if (
+          window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+          ).matches
+        ) {
+
+          return;
+        }
+
+
+        const x =
+          (
+            event.clientX /
+            window.innerWidth -
+            .5
+          ) * 10;
+
+
+        const y =
+          (
+            event.clientY /
+            window.innerHeight -
+            .5
+          ) * 10;
+
+
+        heroOrbit.style.setProperty(
+          "--mx",
+          `${x}px`
+        );
+
+
+        heroOrbit.style.setProperty(
+          "--my",
+          `${y}px`
+        );
+
+      }
+    );
+
+
+    /* =====================================================
+       Initial
+    ===================================================== */
+    document.addEventListener(
+      "DOMContentLoaded",
+      fetchContacts
+    );
+  </script>
+
+</body>
+
+</html>

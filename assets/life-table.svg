@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200">
+<rect width="900" height="1200" fill="#e3dfd5"/>
+<rect x="72" y="70" width="756" height="1060" fill="#f8f7f3"/>
+<ellipse cx="450" cy="720" rx="282" ry="174" fill="#c2b8a7"/>
+<ellipse cx="450" cy="688" rx="220" ry="126" fill="#ded8cd"/>
+<circle cx="450" cy="688" r="72" fill="#b0a391"/>
+<path d="M388 680 Q450 635 512 680" fill="none" stroke="#74756f" stroke-width="7"/>
+<rect x="184" y="300" width="160" height="98" fill="#d0c5b5"/>
+<rect x="556" y="250" width="152" height="128" fill="#c0b5a4"/>
+<circle cx="230" cy="560" r="32" fill="#a9a59a"/>
+<circle cx="665" cy="550" r="24" fill="#a9a59a"/>
+<text x="128" y="1035" font-family="Georgia,serif" font-size="32" fill="#30312f">a table, a cup, an afternoon</text>
+</svg>
