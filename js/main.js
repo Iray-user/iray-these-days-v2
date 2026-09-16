@@ -36,8 +36,7 @@
       <div class="archive-copy">
         <p class="archive-meta">LIFE / ${item.date} / ${item.type}</p>
         <h2 class="archive-title">${item.title}</h2>
-        <p class="archive-description">${item.description}</p>
-        <a class="text-link archive-cta" href="${item.url}">OPEN →</a>
+        <p class="archive-description">${item.body || item.description}</p>
       </div>
     </article>`;
     return `<article class="life-item reveal">
