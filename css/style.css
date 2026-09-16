@@ -831,9 +831,11 @@ main {
 
 .archive-copy {
   min-width: 0;
+  align-self: stretch;
   display: flex;
   flex-direction: column;
-  align-items: flex-start
+  align-items: flex-start;
+  justify-content: space-between
 }
 
 .archive-meta {
@@ -1416,6 +1418,11 @@ main {
 
   .archive-title {
     font-size: 34px
+  }
+
+  .archive-copy {
+    align-self: auto;
+    display: block
   }
 
   .works-page .works-shell {
