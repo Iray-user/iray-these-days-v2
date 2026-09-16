@@ -34,8 +34,10 @@
         <a href="${item.url}" aria-label="Open ${item.title}"><img class="archive-image" src="${item.image}" width="1200" height="900" loading="lazy" alt="${item.title}"></a>
       </div>
       <div class="archive-copy">
-        <p class="archive-meta">LIFE / ${item.date} / ${item.type}</p>
-        <h2 class="archive-title">${item.title}</h2>
+        <div class="archive-heading">
+          <p class="archive-meta">LIFE / ${item.date} / ${item.type}</p>
+          <h2 class="archive-title">${item.title}</h2>
+        </div>
         <p class="archive-description">${item.body || item.description}</p>
       </div>
     </article>`;
